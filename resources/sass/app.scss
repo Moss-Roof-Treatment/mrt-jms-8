@@ -1,0 +1,22 @@
+// Fonts
+@font-face {
+  font-family : "Maven Pro", sans-serif;
+  src         : url('/public/fonts/MavenPro-Regular.ttf') format('ttf');
+  font-weight : normal;
+  font-style  : normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family : "Aero", sans-serif;
+  src         : url('/public/fonts/Aero.ttf') format('ttf');
+  font-weight : normal;
+  font-style  : normal;
+  font-display: swap;
+}
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';

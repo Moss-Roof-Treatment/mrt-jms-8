@@ -1,0 +1,162 @@
+@extends('layouts.jquery')
+
+@section('title', '- Job Notes - Create New Customer Note')
+
+@section('content')
+<section>
+  <div class="container py-5">
+
+    {{-- title --}}
+    <h3 class="text-secondary mb-0">JOB CUSTOMER NOTES</h3>
+    <h5>Create New Customer Note</h5>
+    {{-- title --}}
+
+    {{-- navigation --}}
+    <div class="row row-cols-1 row-cols-sm-4 pt-3">
+      <div class="col pb-3">
+        <a class="btn btn-dark btn-block" href="{{ route('jobs.index') }}">
+          <i class="fas fa-bars mr-2" aria-hidden="true"></i>Jobs Menu
+        </a>
+      </div> {{-- col pb-3 --}}
+      <div class="col pb-3">
+        <a class="btn btn-primary btn-block" href="{{ route('jobs.show', $job->id) }}">
+          <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Job
+        </a>
+      </div> {{-- col pb-3 --}}
+    </div> {{-- row row-cols-1 row-cols-sm-6 pt-3 --}}
+    {{-- navigation --}}
+
+    <div class="row">
+      <div class="col-sm-7">
+
+        <h5 class="text-primary my-3"><b>Create New Customer Note</b></h5>
+
+        <form action="{{ route('job-notes.store') }}" method="POST">
+          @csrf
+
+          <div class="form-group row">
+            <label for="display_job_id" class="col-md-3 col-form-label text-md-right">Job Number</label>
+            <div class="col-md-8 mb-2">
+              <div class="input-group">
+                <input type="text" class="form-control" name="display_job_id" id="display_job_id" aria-describedby="display_job_id" value="{{ $job->id }}" disabled>
+                <input type="hidden" name="job_id" value="{{ $job->id }}">
+              </div>
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="priority_id" class="col-md-3 col-form-label text-md-right">Priority</label>
+            <div class="col-md-8">
+              <select name="priority_id" id="priority_id" class="custom-select @error('priority_id') is-invalid @enderror mb-2">
+                <option selected disabled>Please select a priority</option>
+                @foreach ($priorities as $priority)
+                  <option value="{{ $priority->id }}" @if (old('priority_id') == $priority->id) selected @endif>{{ $priority->title }}</option>
+                @endforeach
+              </select>
+              @error('priority_id')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-6 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="text" class="col-md-3 col-form-label text-md-right">Text</label>
+            <div class="col-md-8">
+              <textarea type="text" class="form-control @error('text') is-invalid @enderror mb-2" name="text" rows="5" placeholder="Please enter the text" style="resize:none">{{ old('text') }}</textarea>
+              @error('text')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <div class="col-md-8 offset-md-3">
+              {{-- create modal --}}
+              {{-- modal button --}}
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
+                <i class="fas fa-check mr-2" aria-hidden="true"></i>Create
+              </button>
+              {{-- modal button --}}
+              {{-- modal --}}
+              <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="createModalTitle">Create</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="text-center">Would you like to send a "New Note" email to the customer?</p>
+                      {{-- send email to customer input --}}
+                      <div class="form-group row">
+                        <div class="col-md-6 offset-sm-3 mb-2">
+                          <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="notify_customer_via_email" name="notify_customer_via_email" {{ old('notify_customer_via_email') ? 'checked' : null }}>
+                            <label class="custom-control-label" for="notify_customer_via_email">Notify customer via email</label>
+                          </div>
+                        </div> {{-- col-md-8 offset-sm-3 --}}
+                      </div> {{-- form-group row --}}
+                      {{-- send email to customer input --}}
+                      <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-check mr-2" aria-hidden="true"></i>Create
+                      </button>
+                    </div> {{-- modal-body --}}
+                  </div> {{-- modal-content --}}
+                </div> {{-- modal-dialog --}}
+              </div> {{-- modal fade --}}
+              {{-- modal --}}
+              {{-- create modal --}}
+
+              {{-- reset modal --}}
+              {{-- modal button --}}
+              <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#confirmResetModal">
+                <i class="fas fa-undo-alt mr-2" aria-hidden="true"></i>Reset
+              </button>
+              {{-- modal button --}}
+              {{-- reset modal --}}
+              <a href="{{ route('jobs.show', $job->id) }}" class="btn btn-dark">
+                <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
+              </a>
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+        </form>
+
+        {{-- reset modal --}}
+        {{-- modal --}}
+        <div class="modal fade" id="confirmResetModal" tabindex="-1" role="dialog" aria-labelledby="confirmResetModalTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmResetModalTitle">Reset</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p class="text-center">Are you sure that you would like to reset this form?</p>
+                <form action="{{ route('job-notes.create') }}" method="GET">
+                  <input type="hidden" name="job_id" value="{{ $job->id }}">
+                  <button class="btn btn-dark btn-block">
+                    <i class="fas fa-undo-alt mr-2" aria-hidden="true"></i>Reset
+                  </button>
+                </form>
+              </div> {{-- modal-body --}}
+            </div> {{-- modal-content --}}
+          </div> {{-- modal-dialog --}}
+        </div> {{-- modal fade --}}
+        {{-- modal --}}
+        {{-- reset modal --}}
+
+      </div> {{-- col-sm-7 --}}
+    </div> {{-- row --}}
+
+  </div> {{-- container --}}
+</section> {{-- section --}}
+@endsection

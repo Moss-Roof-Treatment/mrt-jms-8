@@ -1,0 +1,165 @@
+@extends('layouts.app')
+
+@section('title', '- Messages - View Selected Seen Message')
+
+@section('content')
+<section>
+  <div class="container py-5">
+
+    {{-- title --}}
+    <h3 class="text-secondary mb-0">MESSAGES</h3>
+    <h5>View Selected Seen Message</h5>
+    {{-- title --}}
+
+    {{-- navigation --}}
+    <div class="row row-cols-1 row-cols-sm-4 pt-3">
+      <div class="col pb-3">
+        <a class="btn btn-dark btn-block" href="{{ route('messages-archive.index') }}">
+          <i class="fas fa-bars mr-2" aria-hidden="true"></i>Seen Messages Menu
+        </a>
+      </div> {{-- col pb-3 --}}
+    </div> {{-- row row-cols-1 row-cols-sm-4 pt-3 --}}
+    {{-- navigation --}}
+
+    <div class="row">
+      <div class="col-sm">
+
+        {{-- message details table --}}
+        <h5 class="text-primary my-3"><b>Message Details</b></h5>
+        <div class="table-responsive">
+          <table class="table table-bordered table-fullwidth table-striped bg-white">
+            <tbody>
+              <tr>
+                <th>ID</th>
+                <td>{{ $selected_seen_message->id }}</td>
+              </tr>
+              <tr>
+                <th>Sender</th>
+                <td>{{ $selected_seen_message->sender->getFullNameAttribute() }}</td>
+              </tr>
+              <tr>
+                <th>Recipient</th>
+                <td>{{ $selected_seen_message->recipient->getFullNameAttribute() }}</td>
+              </tr>
+              <tr>
+                <th>Priority</th>
+                <td>
+                  @if ($selected_seen_message->priority_id == null)
+                    <span class="badge badge-light py-2 px-2"><i class="fas fa-times mr-2" aria-hidden="true"></i>Not Applicable</span>
+                  @else
+                    <span class="badge badge-{{ $selected_seen_message->priority->colour->brand }} py-2 px-2">
+                      <i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>
+                      {{ $selected_seen_message->priority->title . ' (' . $selected_seen_message->priority->resolution_amount . ' ' . $selected_seen_message->priority->resolution_period . ')' }}
+                    </span>
+                  @endif
+                </td>
+              </tr>
+              <tr>
+                <th>Sent Date</th>
+                <td>{{ date('d/m/y - h:iA', strtotime($selected_seen_message->created_at)) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> {{-- table-responsive --}}
+        {{-- message details table --}}
+
+      </div> {{-- col-sm --}}
+      <div class="col-sm">
+
+        <h5 class="text-primary my-3"><b>Message Attachments</b></h5>
+        @if (!$selected_seen_message->message_attachments->count())
+          <div class="card">
+            <div class="card-body">
+              <h5 class="text-center mb-0">Please fill out the search form</h5>
+            </div> {{-- card-body --}}
+          </div> {{-- card --}}
+        @else
+          <div class="table-responsive">
+            <table class="table table-bordered table-fullwidth table-striped bg-white">
+              <tbody>
+                @foreach ($selected_seen_message->message_attachments as $attachment)
+                  <tr>
+                    <td>{{ $attachment->title }}</td>
+                    <td class="text-center">
+                      <a class="btn btn-dark btn-sm" href="{{ route('messages-download-attachment.show', $attachment->id) }}">
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                      </a>
+                    </td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div> {{-- table-responsive --}}
+        @endif
+
+      </div> {{-- col-sm --}}
+    </div> {{-- row --}}
+
+    {{-- message text --}}
+    <h5 class="text-primary my-3"><b>Message</b></h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-fullwidth table-striped bg-white">
+        <tbody>
+          <tr>
+            <td>{{ $selected_seen_message->text }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div> {{-- table-responsive --}}
+    {{-- message text --}}
+
+    {{-- message responses --}}
+    <h5 class="text-primary my-3"><b>Responses</b></h5>
+    @if ($message_replies->count())
+      <div class="table-responsive">
+        <table class="table table-bordered table-fullwidth table-striped bg-white">
+          <tbody>
+            @foreach ($message_replies as $reply)
+              <tr>
+                <td><i class="fas fa-user mr-2" aria-hidden="true"></i>{{ $reply->sender->getFullNameAttribute() }}</td>
+                <td class="text-right"><i class="fas fa-calendar-alt mr-2" aria-hidden="true"></i>{{ date('d/m/y h:iA', strtotime($reply->created_at)) }}</td>
+              </tr>
+              <tr>
+                <td colspan="2">{{ $reply->text }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div> {{-- table-responsive --}}
+    @endif
+    {{-- message responses --}}
+
+    {{-- create message response form --}}
+    <form action="{{ route('messages-reply.store') }}" method="POST">
+      @csrf
+
+      <input type="hidden" class="input" name="message_id" value="{{ $selected_seen_message->id }}">
+
+      <div class="form-group row">
+        <div class="col">
+          <textarea class="form-control @error('text') is-invalid @enderror mb-2" type="text" name="text" rows="5" placeholder="Please type your reply here" style="resize:none">{{ old('text') }}</textarea>
+          @error('text')
+            <span class="invalid-feedback" role="alert">
+              <strong>{{ $message }}</strong>
+            </span>
+          @enderror
+        </div> {{-- col --}}
+      </div> {{-- form-group row --}}
+
+      <div class="form-group row">
+        <div class="col-md">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-reply mr-2" aria-hidden="true"></i>Reply
+          </button>
+          <a class="btn btn-dark" href="{{ route('messages.index') }}">
+            <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
+          </a>
+        </div> {{-- col-md-9 --}}
+      </div> {{-- form-group row --}}
+
+    </form>
+    {{-- create message response form --}}
+
+  </div> {{-- container --}}
+</section> {{-- section --}}
+@endsection

@@ -1,0 +1,69 @@
+-JMS QUOTE PAGE-
+Task cost total.
+Tradesperson rates cost total.
+Product cost total.
+Profit margin.
+Discount.
+Subtotal.
+GST.
+Quote total.
+Opening balance.
+Deposit total.
+Payments total.
+Remaining balance.
+
+-CUSTOMER VIEW QUOTE-
+Estimated price of the total quote ex gst.
+GST of estimated price of the total quote.
+Quote total price inc gst.
+Deposit amount inc gst.
+Balance due on completion inc gst.
+
+-DEPOSIT RECEIPT-
+Deposit amount paid.
+Remaining balance as of deposit receipt.
+GST of paid deposit.
+
+-TAX INVOICE-
+Tax invoice discount amount.
+Payments made at time of tax invoice.
+Remaining balance inc gst at time of tax invoice.
+GST component at time of tax invoice.
+
+-FINAL RECEIPT-
+Quote total price inc gst at time of final receipt.
+Payments made at time of final receipt.
+GST component at time of final receipt.
+
+
+
+
+
+Subtotal ex GST
+$623.46
+
+GST Only Total
+$62.35
+
+Quote Total Inc GST
+$685.81 inc gst - gst component is $62.35
+* Subtotal + GST = Total.
+
+Quote Deposit - 25%
+$171.45 - gst inc component is $15.59
+* Quote Total x 0.25 (25%), the inc gst is calculated by dividing by 11.
+
+Quote Balance - 75%
+$514.35 - gst inc component is $46.75
+* Quote Total x 0.75 (75%), the inc gst is calculated by dividing by 11.
+
+Payment Amount
+$171.45 - gst inc component is $15.59
+* Remaining Balance is $514.36 (at time of payment no discount applied yet).
+
+Tax Invoice
+$264.36 - gst inc component is $24.03
+* Remaining Balance is $514.36 - $250.00 discount = $264.36 (discount applied), gst inc component $24.03.
+
+Final Receipt
+Subtotal: $685.81, Payments / Credits: -$435.81 + -$250.00 (Tax invoice discount) = -$685.81, Total: $0.00, GST Component: $62.35

@@ -1,0 +1,231 @@
+@extends('layouts.app')
+
+@section('title', '- Settings - Edit Selected Building Type Post')
+
+@section('content')
+<section>
+  <div class="container py-5">
+
+    {{-- title --}}
+    <h3 class="text-secondary mb-0">BUILDING TYPE POSTS</h3>
+    <h5>Edit Selected Building Type Post</h5>
+    {{-- title --}}
+
+    {{-- navigation --}}
+    <div class="row pt-3">
+      <div class="col-sm-3 pb-3">
+      <a href="{{ route('building-style-post-settings.index') }}" class="btn btn-dark btn-block">
+        <i class="fas fa-bars mr-2" aria-hidden="true"></i>Building Type Posts Menu
+        </a>
+      </div> {{-- col-sm-3 pb-3 --}}
+    </div> {{-- row pt-3 --}}
+    {{-- navigation --}}
+
+    <div class="row">
+      <div class="col-sm-7">
+
+        <p class="text-primary my-3"><b>Edit Building Type Post</b></p>
+        <form action="{{ route('building-style-post-settings.update', $selected_building_style_post->id) }}" method="POST" enctype="multipart/form-data">
+          @method('PATCH')
+          @csrf
+
+          <div class="form-group row">
+            <label for="title" class="col-md-3 col-form-label text-md-right">Title</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control @error('title') is-invalid @enderror mb-2" name="title" id="title" value="{{ old('title', $selected_building_style_post->title) }}" placeholder="Please enter the title" autofocus>
+              @error('title')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="building_style_post_type_id" class="col-md-3 col-form-label text-md-right">Building Type</label>
+            <div class="col-md-8">
+              <select name="building_style_post_type_id" id="building_style_post_type_id" class="custom-select @error('building_style_post_type_id') is-invalid @enderror mb-2">
+                @if (old('building_style_post_type_id'))
+                  <option disabled>Please select a building type</option>
+                  @foreach ($all_building_types as $building_type)
+                    <option value="{{ $building_type->id }}" @if (old('building_style_post_type_id') == $building_type->id) selected @endif>{{ $building_type->title }}</option>
+                  @endforeach
+                @else
+                  @if ($selected_building_style_post->building_style_post_type_id == null)
+                    <option selected disabled>Please select a building type</option>
+                  @else
+                    <option value="{{ $selected_building_style_post->building_style_post_type_id }}" selected>
+                      {{ $selected_building_style_post->building_style_post_type->title }}
+                    </option>
+                    <option disabled>Please select a building type</option>
+                  @endif
+                  @foreach ($all_building_types as $building_type)
+                    <option value="{{ $building_type->id }}">{{ $building_type->title }}</option>
+                  @endforeach
+                @endif
+              </select>
+              @error('building_style_post_type_id')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-6 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="material_type_id" class="col-md-3 col-form-label text-md-right">Roof Surface</label>
+            <div class="col-md-8">
+              <select name="material_type_id" id="material_type_id" class="custom-select @error('material_type_id') is-invalid @enderror mb-2">
+                @if (old('material_type_id'))
+                  <option disabled>Please select a roof surface</option>
+                  @foreach ($all_material_types as $material_type)
+                    <option value="{{ $material_type->id }}" @if (old('material_type_id') == $material_type->id) selected @endif>{{ $material_type->title }}</option>
+                  @endforeach
+                @else
+                  @if ($selected_building_style_post->material_type_id == null)
+                    <option selected disabled>Please select a roof surface</option>
+                  @else
+                    <option value="{{ $selected_building_style_post->material_type_id }}" selected>
+                      {{ $selected_building_style_post->material_type->title }}
+                    </option>
+                    <option disabled>Please select a roof surface</option>
+                  @endif
+                  @foreach ($all_material_types as $material_type)
+                    <option value="{{ $material_type->id }}">{{ $material_type->title }}</option>
+                  @endforeach
+                @endif
+              </select>
+              @error('material_type_id')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-6 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="description" class="col-md-3 col-form-label text-md-right">Description</label>
+            <div class="col-md-8">
+              <textarea class="form-control @error('description') is-invalid @enderror mb-2" type="text" name="description" rows="5" placeholder="Please enter the description" style="resize:none">{{ old('description', $selected_building_style_post->description) }}</textarea>
+              @error('description')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-9 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="completed_date" class="col-md-3 col-form-label text-md-right">Completion Date</label>
+            <div class="col-md-8">
+              <input class="form-control @error('completed_date') is-invalid @enderror" type="date" name="completed_date" value="{{ date('Y-m-d', strtotime($selected_building_style_post->completed_date)) }}">
+              @error('completed_date')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="roof_outline_image_path" class="col-md-3 col-form-label text-md-right">Roof Outline Image</label>
+            <div class="col-md-8 mb-2">
+              <div class="custom-file">
+                <label class="custom-file-label" for="roof_outline_image_path" id="roof_outline_image_name">Please select an image to upload</label>
+                <input type="file" class="custom-file-input" name="roof_outline_image_path" id="roof_outline_image_path" aria-describedby="roof_outline_image_path">
+              </div> {{-- custom-file --}}
+              @error('image')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="building_image_path" class="col-md-3 col-form-label text-md-right">Building Image</label>
+            <div class="col-md-8 mb-2">
+              <div class="custom-file">
+                <label class="custom-file-label" for="building_image_path" id="building_image_name">Please select a image to upload</label>
+                <input type="file" class="custom-file-input" name="building_image_path" id="building_image_path" aria-describedby="building_image_path">
+              </div> {{-- custom-file --}}
+              @error('logo')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row mb-0">
+            <div class="col-md-8 offset-md-3">
+              {{-- create button --}}
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-edit mr-2" aria-hidden="true"></i>Edit
+              </button>
+              {{-- create button --}}
+              {{-- reset modal --}}
+              {{-- modal button --}}
+              <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModalCenter">
+                <i class="fas fa-undo-alt mr-2" aria-hidden="true"></i>Reset
+              </button>
+              {{-- modal button --}}
+              {{-- modal --}}
+              <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalCenterTitle">Reset</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="text-center">Are you sure that you would like to reset this form?</p>
+                      <a href="{{ route('building-style-post-settings.edit', $selected_building_style_post->id) }}" class="btn btn-dark btn-block">
+                        <i class="fas fa-undo-alt mr-2" aria-hidden="true"></i>Reset
+                      </a>
+                    </div> {{-- modal-body --}}
+                  </div> {{-- modal-content --}}
+                </div> {{-- modal-dialog --}}
+              </div> {{-- modal fade --}}
+              {{-- modal --}}
+              {{-- reset modal --}}
+              {{-- cancel button --}}
+              <a href="{{ route('building-style-post-settings.index') }}" class="btn btn-dark">
+                <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
+              </a>
+              {{-- cancel button --}}
+            </div> {{-- col-md-9 --}}
+          </div> {{-- form-group row --}}
+
+        </form>
+
+      </div> {{-- col-sm-7 --}}
+    </div> {{-- row --}}
+
+  </div> {{-- container --}}
+</section> {{-- section --}}
+@endsection
+
+@push('js')
+<script>
+  // Display the filename of the selected file to the user in the view from the upload form.
+  var roofImage = document.getElementById("roof_outline_image_path");
+  roofImage.onchange = function(){
+    if (roofImage.files.length > 0)
+    {
+      document.getElementById('roof_outline_image_name').innerHTML = roofImage.files[0].name;
+    }
+  };
+
+  // Display the filename of the selected file to the user in the view from the upload form.
+  var buildingImage = document.getElementById("building_image_path");
+  buildingImage.onchange = function(){
+    if (buildingImage.files.length > 0)
+    {
+      document.getElementById('building_image_name').innerHTML = buildingImage.files[0].name;
+    }
+  };
+</script>
+@endpush
