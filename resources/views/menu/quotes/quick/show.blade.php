@@ -1370,6 +1370,8 @@
   </div> {{-- container --}}
 </section> {{-- section --}}
 
+@if($fuel_product != null)
+
 <section>
   <div class="container py-5">
 
@@ -1421,6 +1423,8 @@
 
   </div> {{-- container --}}
 </section> {{-- section --}}
+
+@endif
 
 <section class="bg-white">
   <div class="container py-5">
