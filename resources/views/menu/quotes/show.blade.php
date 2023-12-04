@@ -243,58 +243,59 @@
                   <div class="col-sm-10">
 
                     <p><b>{{ $quote_product->product->name }}</b></p>
-                    <form action="{{ route('quote-products.update', $quote_product->id ) }}" method="POST">
-                      @method('PATCH')
-                      @csrf
 
                     @if($quote_product->product_id != 6 ) 
 
-                      <div class="form-group row">
-                        <div class="col">
-                          <div class="input-group">
-                            <input type="text" class="form-control" name="quantity" value="{{ $quote_product->quantity }}" aria-label="meters_squared" disabled>
-                            <div class="input-group-append">
-                              <span class="input-group-text">Item</span>
+                      <form action="{{ route('quote-products.update', $quote_product->id ) }}" method="POST">
+                        @method('PATCH')
+                        @csrf
+
+                        <div class="form-group row">
+                          <div class="col">
+                            <div class="input-group">
+                              <input type="text" class="form-control" name="quantity" value="{{ $quote_product->quantity }}" aria-label="meters_squared" disabled>
+                              <div class="input-group-append">
+                                <span class="input-group-text">Item</span>
+                              </div>
+                              <div class="input-group-append">
+                                <span class="input-group-text">X</span>
+                              </div>
+                              <div class="input-group-append">
+                                <span class="input-group-text">$</span>
+                              </div>
+                              <input type="text" class="form-control" name="price" value="{{ number_format(($quote_product->individual_price / 100), 2, '.', ',') }}" aria-label="price">
+                              <div class="input-group-append">
+                                <span class="input-group-text">=</span>
+                              </div>
+                              <div class="input-group-append">
+                                <span class="input-group-text">$</span>
+                              </div>
+                              <input type="text" class="form-control" name="total_price" value="{{ number_format(($quote_product->total_price / 100), 2, '.', ',') }}" aria-label="total_price" disabled>
                             </div>
-                            <div class="input-group-append">
-                              <span class="input-group-text">X</span>
-                            </div>
-                            <div class="input-group-append">
-                              <span class="input-group-text">$</span>
-                            </div>
-                            <input type="text" class="form-control" name="price" value="{{ number_format(($quote_product->individual_price / 100), 2, '.', ',') }}" aria-label="price">
-                            <div class="input-group-append">
-                              <span class="input-group-text">=</span>
-                            </div>
-                            <div class="input-group-append">
-                              <span class="input-group-text">$</span>
-                            </div>
-                            <input type="text" class="form-control" name="total_price" value="{{ number_format(($quote_product->total_price / 100), 2, '.', ',') }}" aria-label="total_price" disabled>
-                          </div>
-                        </div> {{-- col --}}
-                      </div> {{-- form-group row --}}
+                          </div> {{-- col --}}
+                        </div> {{-- form-group row --}}
+
+                        <div class="form-group row">
+                          <div class="col">
+                            <input type="text" class="form-control" name="description" value="{{ $quote_product->description }}" placeholder="Please enter any additional comments for this product">
+                          </div> {{-- col --}}
+                        </div> {{-- form-group row --}}
+    
+                        <div class="form-group row">
+                          <div class="col">
+                            <button type="submit" class="btn btn-primary">
+                              <i class="fas fa-edit mr-2" aria-hidden="true"></i>Update
+                            </button>
+                          </div> {{-- col --}}
+                        </div> {{-- form-group row --}}
+
+                      </form>
 
                     @else
 
-                    <p>{{ $quote_product->quantity }} Kms = ${{ number_format(($quote_product->total_price / 100), 2, '.', ',') }}</p>
+                      <p class="pb-2">{{ $quote_product->quantity }} Kms = ${{ number_format(($quote_product->total_price / 100), 2, '.', ',') }}</p>
 
                     @endif
-
-                    <div class="form-group row">
-                      <div class="col">
-                        <input type="text" class="form-control" name="description" value="{{ $quote_product->description }}" placeholder="Please enter any additional comments for this product">
-                      </div> {{-- col --}}
-                    </div> {{-- form-group row --}}
-
-                    <div class="form-group row">
-                      <div class="col">
-                        <button type="submit" class="btn btn-primary">
-                          <i class="fas fa-edit mr-2" aria-hidden="true"></i>Update
-                        </button>
-                        </form>
-                        </button>
-                      </div> {{-- col --}}
-                    </div> {{-- form-group row --}}
 
                   </div> {{-- col-sm-10 --}}
                 </div> {{-- row --}}
