@@ -652,11 +652,11 @@ class Quote extends Model
      */
     public function updateQuoteProductTradespersonMaterials()
     {
-        // Check if the relationship exists.
-        if ($this->quote_products->count()) {
-            // Find the required quote product.
-            $selected_quote_product = $this->quote_products()->first();
-        } else {
+        // Check if the default Moss Treatment Fluid Quote Product Exists, if not create it.
+        // Find quote product.
+        $selected_quote_product = $this->quote_products->where('product_id', 5)->first();
+        // Check if no quote product was found.
+        if ($selected_quote_product == null) {
             // Create the new quote product.
             $selected_quote_product = $this->quote_products()->create([
                 'quote_id' => $this->id,

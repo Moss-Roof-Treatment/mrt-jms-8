@@ -54,10 +54,18 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
+        // dd('here');
+
         // Find the required model instance.
         $selected_quote_task = QuoteTask::findOrFail($id);
+
+        // WHY DID I DO IT THIS WAY ???????????
         // Find the related quote model instance, plick the id, cast to array, then implode the array to a variable.
-        $selected_quote_id = implode(Quote::find($selected_quote_task->quote_id)->pluck('id')->toArray());
+        // $selected_quote_id = implode(Quote::find($selected_quote_task->quote_id)->pluck('id')->toArray());
+
+        // Set the required quote id.
+        $selected_quote_id = $selected_quote_task->quote_id;
+
         // Deleted the selected model instance.
         $selected_quote_task->delete();
         // Return a redirect to the quote show view.
