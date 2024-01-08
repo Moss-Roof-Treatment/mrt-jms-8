@@ -1367,7 +1367,7 @@
                     {{-- delete modal --}}
                     {{-- modal button --}}
                     <button type="button" class="btn btn-{{ $quote->allow_accept_card_payment == 0 ? 'danger' : 'success' }} btn-sm mr-2" data-toggle="modal" data-target="#confirm-allow-staff-to-accept-payment-{{$quote->id}}">
-                      <i class="fab fa-cc-stripe mr-2" aria-hidden="true"></i>Tradepsrson
+                      <i class="fab fa-cc-stripe mr-2" aria-hidden="true"></i>Tradesperson
                     </button>
                     {{-- modal button --}}
                     {{-- modal --}}
