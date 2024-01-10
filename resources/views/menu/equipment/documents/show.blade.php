@@ -78,18 +78,13 @@
     <div class="row">
       <div class="col-sm-6">
 
-        <h5 class="text-primary my-3"><b>Document Image</b></h5>
-
-        @if ($document->image_path == null)  
-          <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset('storage/images/placeholders/document-256x256.jpg') }}">
-        @else
-          <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($document->image_path) }}" alt="">
-        @endif
+        <h5 class="text-primary my-4"><b>Document Image</b></h5>
+        <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($document->get_document_image()) }}">
 
       </div> {{-- col-sm-6 --}}
       <div class="col-sm-6">
 
-        <h5 class="text-primary my-3"><b>Document Details</b></h5>
+        <h5 class="text-primary my-4"><b>Document Details</b></h5>
 
         <table class="table table-bordered table-fullwidth table-striped bg-white">
           <tbody>

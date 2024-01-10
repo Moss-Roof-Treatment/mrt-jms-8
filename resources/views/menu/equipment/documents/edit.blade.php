@@ -119,7 +119,7 @@
               {{-- modal --}}
               {{-- reset modal --}}
               {{-- cancel button --}}
-              <a href="{{ route('equipment-documents.show', $document->equipment_id) }}" class="btn btn-dark">
+              <a href="{{ route('equipment-documents.show', $document->id) }}" class="btn btn-dark">
                 <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
               </a>
               {{-- cancel button --}}
