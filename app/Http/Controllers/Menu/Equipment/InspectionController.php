@@ -48,7 +48,7 @@ class InspectionController extends Controller
             'inspection_date' => 'required',
             'inspection_company' => 'required|string|min:5|max:100',
             'inspector_name' => 'required|string|min:5|max:100',
-            'tag_and_test_id' => 'required|min:3|max:20',
+            'tag_and_test_id' => 'sometimes|nullable|min:3|max:20',
             'text' => 'required|string|min:10|max:500',
             'next_inspection_date' => 'required'
         ]);
@@ -78,14 +78,6 @@ class InspectionController extends Controller
     {
         // Find the required model instance.
         $inspection = EquipmentInspection::findOrFail($id);
-
-        if (session()->has('selected_equipment_inspection_id')) {
-            session()->pull('selected_equipment_inspection_id');
-        }
-
-        session([
-            'selected_equipment_inspection_id' => $inspection->id,
-        ]);
         // Return the show view.
         return view('menu.equipment.inspections.show')
             ->with('inspection', $inspection);
@@ -128,7 +120,7 @@ class InspectionController extends Controller
             'inspection_date' => 'required',
             'inspection_company' => 'required|string|min:5|max:100',
             'inspector_name' => 'required|string|min:5|max:100',
-            'tag_and_test_id' => 'required|min:3|max:20',
+            'tag_and_test_id' => 'sometimes|nullable|min:3|max:20',
             'text' => 'required|string|min:10|max:500',
             'next_inspection_date' => 'required'
         ]);

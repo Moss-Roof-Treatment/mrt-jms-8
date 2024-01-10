@@ -57,11 +57,7 @@
               <tr>
                 <td class="text-center">
                   <a href="{{ route('equipment.show', $equipment->id) }}">
-                    @if ($equipment->image_path == null)  
-                      <img class="img-fluid shadow-sm" style="max-width:64px;" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}">
-                    @else
-                      <img class="img-fluid" style="max-width:64px;" src="{{ asset($equipment->image_path) }}" alt="">
-                    @endif
+                    <img class="img-fluid shadow-sm" style="max-width:64px;" src="{{ asset($equipment->get_equipment_image()) }}" alt="">
                   </a>
                 </td>
                 <td>{{ $equipment->title }}</td>

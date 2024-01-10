@@ -48,6 +48,7 @@
             <th>Customer</th>
             <th>Street Address</th>
             <th>Suburb</th>
+            <th>Phone</th>
             <th>Status</th>
             <th>Source</th>
             <th>Options</th>
@@ -75,7 +76,8 @@
                     <i class="fas fa-stopwatch mr-2" aria-hidden="true"></i>Is Pending
                   </span>
                 @else
-                  {{ $selected_quote_request->street_address }}
+                  {{ substr($selected_quote_request->street_address, 0, 30) }}
+                  {{ strlen($selected_quote_request->street_address) > 30 ? '...' : '' }}
                 @endif
               </td>
               <td>
@@ -86,6 +88,9 @@
                 @else
                   {{ $selected_quote_request->suburb }}
                 @endif
+              </td>
+              <td>
+                {{ $selected_quote_request->getFullPhoneNumber() }}
               </td>
               <td>
                 @if ($selected_quote_request->quote_request_status_id == null)

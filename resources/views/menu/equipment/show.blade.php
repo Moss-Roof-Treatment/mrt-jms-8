@@ -77,14 +77,10 @@
     <div class="row">
       <div class="col-sm-6">
 
-        <h5 class="text-primary my-3"><b>Equipment Image</b></h5>
-        @if ($equipment->image_path == null)  
-          <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}">
-        @else
-          <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($equipment->image_path) }}" alt="">
-        @endif
+        <h5 class="text-primary my-4"><b>Equipment Image</b></h5>
+        <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($equipment->get_equipment_image()) }}">
 
-        <h5 class="text-primary my-3"><b>Equipment Details</b></h5>
+        <h5 class="text-primary my-4"><b>Equipment Details</b></h5>
         <div class="table-responsive">
           <table class="table table-bordered table-fullwidth table-striped bg-white">
             <tbody>
@@ -207,7 +203,7 @@
       </div> {{-- col-sm-6 --}}
       <div class="col-sm-6">
 
-        <h5 class="text-primary my-3"><b>Safety & Training Manuals</b></h5>
+        <h5 class="text-primary my-4"><b>Safety & Training Manuals</b></h5>
         @if (!$equipment_documents->count())
           <div class="card shadow-sm mt-3">
             <div class="card-body text-center">
@@ -227,12 +223,8 @@
               <tbody>
                 @foreach ($equipment_documents as $document)
                   <tr>
-                    <td>
-                      @if ($document->image_path == null)  
-                        <img class="img-fluid shadow-sm" style="max-width:64px;" src="{{ asset('storage/images/placeholders/document-256x256.jpg') }}">
-                      @else
-                        <img class="img-fluid shadow-sm" style="max-width:64px;" src="{{ asset($document->image_path) }}">
-                      @endif
+                    <td class="text-center w-25">
+                      <img class="img-fluid shadow-sm" src="{{ asset($document->get_document_image()) }}">
                     </td>
                     <td>{{ $document->title }}</td>
                     <td class="text-center">
@@ -257,7 +249,7 @@
     </div> {{-- row --}}
 
     {{-- notes table --}}
-    <h5 class="text-primary my-3"><b>Equipment Notes</b></h5>
+    <h5 class="text-primary my-4"><b>Equipment Notes</b></h5>
     @if (!$equipment_notes->count())
       <div class="card shadow-sm mt-3">
         <div class="card-body text-center">
@@ -331,7 +323,7 @@
     {{-- notes table --}}
 
     {{-- inspections table --}}
-    <h5 class="text-primary my-3"><b>Inspection Details</b></h5>
+    <h5 class="text-primary my-4"><b>Inspection Details</b></h5>
     @if (!$equipment_inspections->count())
       <div class="card shadow-sm mt-3">
         <div class="card-body text-center">

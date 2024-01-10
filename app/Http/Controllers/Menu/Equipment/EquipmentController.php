@@ -34,13 +34,6 @@ class EquipmentController extends Controller
      */
     public function index()
     {
-        // Clear session.
-        if (session()->has('selected_equipment_id')) {
-            session()->pull('selected_equipment_id');
-            session()->pull('selected_equipment_document_id');
-            session()->pull('selected_equipment_inspection_id');
-            session()->pull('selected_equipment_note_id');
-        }
         // Find all of the required model instances.
         $all_equipment = Equipment::orderBy('id', 'desc')->paginate(20);
         // Return the index view.
@@ -144,17 +137,6 @@ class EquipmentController extends Controller
         $equipment_documents = EquipmentDocument::where('equipment_id', $id)
             ->orderBy('id', 'desc')
             ->get();
-        // Clear the session of equipment variables and set the new equipment id.
-        if (session()->has('selected_equipment_id')) {
-            session()->pull('selected_equipment_id');
-            session()->pull('selected_equipment_document_id');
-            session()->pull('selected_equipment_inspection_id');
-            session()->pull('selected_equipment_note_id');
-        }
-        // Set the required session variables.
-        session([
-            'selected_equipment_id' => $equipment->id,
-        ]);
         // Return the show view.
         return view('menu.equipment.show')
             ->with([

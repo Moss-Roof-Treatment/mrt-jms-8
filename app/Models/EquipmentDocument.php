@@ -42,4 +42,25 @@ class EquipmentDocument extends Model
     {
         return $this->belongsTo('App\Models\Equipment');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Model Functions
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get equipment document image or placeholder.
+     */
+    public function get_document_image() 
+    {
+        // Check if the file exists on the server.
+        if (file_exists(public_path($this->image_path))) {
+            $value = $this->image_path;
+        } else {
+            $value = "storage/images/placeholders/document-256x256.jpg";
+        }
+        // Return the value.
+        return $value;
+    }
 }

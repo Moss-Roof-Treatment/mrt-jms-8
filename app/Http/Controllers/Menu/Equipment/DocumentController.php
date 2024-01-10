@@ -97,14 +97,6 @@ class DocumentController extends Controller
     {
         // Find the required model instance.
         $document = EquipmentDocument::findOrFail($id);
-        // Set The Required Variables.
-        if (session()->has('selected_equipment_document_id')) {
-            session()->pull('selected_equipment_document_id');
-        }
-        // Set the session variable.
-        session([
-            'selected_equipment_document_id' => $document->id,
-        ]);
         // Return the show view.
         return view('menu.equipment.documents.show')
             ->with('document', $document);

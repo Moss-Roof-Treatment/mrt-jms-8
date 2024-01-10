@@ -85,4 +85,25 @@ class Equipment extends Model
     {
         return $this->hasMany('App\Models\EquipmentDocument');
     }
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Model Functions
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get equipment image or placeholder.
+     */
+    public function get_equipment_image() 
+    {
+        // Check if the file exists on the server.
+        if (file_exists(public_path($this->image_path))) {
+            $value = $this->image_path;
+        } else {
+            $value = "storage/images/placeholders/tools-256x256.jpg";
+        }
+        // Return the value.
+        return $value;
+    }
 }

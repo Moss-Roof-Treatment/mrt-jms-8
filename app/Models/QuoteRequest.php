@@ -121,4 +121,18 @@ class QuoteRequest extends Model
     {
         return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name);
     }
+
+    /**
+     * Get the users full name.
+     */
+    public function getFullPhoneNumber()
+    {
+        if ($this->mobile_phone || $this->home_phone) {
+            $value = $this->mobile_phone;
+        } else {
+            $value = $this->home_phone ?? 'Not Applicable';
+        }
+
+        return $value;
+    }
 }

@@ -30,14 +30,14 @@ class CreateEquipmentInspectionsTable extends Migration
                 ->onDelete('set null');
 
             // Fields.
-            $table->string('inspection_company'); // The business name of who is performing the inspection.
-            $table->string('inspector_name'); // The name of the person who is performing the inspection.
-            $table->string('tag_and_test_id'); // The tag and test id of the inspection.
-            $table->text('text'); // Comments of the inspection.
+            $table->string('inspection_company')->nullable(); // The business name of who is performing the inspection.
+            $table->string('inspector_name')->nullable(); // The name of the person who is performing the inspection.
+            $table->string('tag_and_test_id')->nullable(); // The tag and test id of the inspection.
+            $table->text('text')->nullable(); // Comments of the inspection.
 
             // Timestamps.
-            $table->dateTime('inspection_date'); // The date of the inspection.
-            $table->dateTime('next_inspection_date'); // The date of the next inspection. 
+            $table->dateTime('inspection_date')->nullable(); // The date of the inspection.
+            $table->dateTime('next_inspection_date')->nullable(); // The date of the next inspection. 
             $table->timestamps();
         });
     }

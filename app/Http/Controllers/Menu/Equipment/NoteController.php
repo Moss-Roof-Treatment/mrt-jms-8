@@ -79,14 +79,6 @@ class NoteController extends Controller
     {
         // Find the required model instance.
         $note = Note::findOrFail($id);
-
-        if (session()->has('selected_equipment_note_id')) {
-            session()->pull('selected_equipment_note_id');
-        }
-
-        session([
-            'selected_equipment_note_id' => $note->id,
-        ]);
         // Return the show view.
         return view('menu.equipment.notes.show')
             ->with('note', $note);
@@ -128,9 +120,11 @@ class NoteController extends Controller
         ]);
         // Find and update the selected model instance.
         $selected_note = Note::findOrFail($id);
-        $selected_note->priority_id = $request->priority_id ?? 4; // Low.
-        $selected_note->text = ucfirst($request->text);
-        $selected_note->save();
+        // Update the selected note.
+        $selected_note->update([
+            'priority_id' => $request->priority_id ?? 4,
+            'text' => ucfirst($request->text),
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('equipment-notes.show', $selected_note->id)
