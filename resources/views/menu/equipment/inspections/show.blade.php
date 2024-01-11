@@ -24,7 +24,7 @@
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment-inspection-images.create') }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-inspection-images.create', ['inspection_id' => $inspection->id]) }}" class="btn btn-primary btn-block">
           <i class="fas fa-images mr-2" aria-hidden="true"></i>Upload Images
         </a>
       </div> {{-- col pb-3 --}}

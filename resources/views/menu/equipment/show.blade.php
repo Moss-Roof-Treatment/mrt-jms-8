@@ -24,17 +24,17 @@
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment-inspections.create') }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-inspections.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-primary btn-block">
           <i class="fas fa-clipboard-check mr-2" aria-hidden="true"></i>Inspections
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment-notes.create') }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-notes.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-primary btn-block">
           <i class="fas fa-sticky-note mr-2" aria-hidden="true"></i>Notes
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment-documents.create') }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-documents.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-primary btn-block">
           <i class="fas fa-file-alt mr-2" aria-hidden="true"></i>Documents
         </a>
       </div> {{-- col pb-3 --}}

@@ -24,14 +24,10 @@
     <div class="row">
       <div class="col-sm-5">
 
-        <h5 class="text-primary my-3"><b>Equipment Image</b></h5>
-        @if ($equipment->image_path == null)  
-          <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}">
-        @else
-          <img class="img-fluid mx-auto d-block" src="{{ asset($equipment->image_path) }}" alt="">
-        @endif
+        <h5 class="text-primary my-4"><b>Equipment Image</b></h5>
+        <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($equipment->get_equipment_image()) }}">
 
-        <h5 class="text-primary my-3"><b>Equipment Details</b></h5>
+        <h5 class="text-primary my-4"><b>Equipment Details</b></h5>
         <table class="table table-bordered table-fullwidth table-striped bg-white">
           <tbody>
             <tr>
@@ -156,7 +152,7 @@
       </div>
       <div class="col-sm-7">
 
-        <h5 class="text-primary my-3"><b>Create New Inpection</b></h5>
+        <h5 class="text-primary my-4"><b>Create New Inpection</b></h5>
 
         <form action="{{ route('equipment-inspections.store') }}" method="POST">
           @csrf

@@ -29,8 +29,10 @@ class DocumentController extends Controller
      */
     public function create(Request $request)
     {
+        // Set the get variable or abort 404.
+        $value = $_GET['equipment_id'] ?? abort(404);
         // Set The Required Variables.
-        $equipment = Equipment::find(session('selected_equipment_id'));
+        $equipment = Equipment::findOrFail($value);
         // Return the create view.
         return view('menu.equipment.documents.create')
             ->with('equipment', $equipment);
@@ -192,6 +194,8 @@ class DocumentController extends Controller
     {
         // Find the required equipment document.
         $selected_document = EquipmentDocument::findOrFail($id);
+        // Selected Equipment ID.
+        $selected_equipment_id = $selected_document->equipment_id;
         // Delete the image of the selected equipment document.
         if ($selected_document->image_path != null) {
             if (file_exists(public_path($selected_document->image_path))) {
@@ -208,7 +212,7 @@ class DocumentController extends Controller
         $selected_document->delete();
         // Return a redirect tothe equipment show route.
         return redirect()
-            ->route('equipment.show', session('selected_equipment_id'))
+            ->route('equipment.show', $selected_equipment_id)
             ->with('success', 'You have successfully deleted the selected equipment document.');
     }
 }

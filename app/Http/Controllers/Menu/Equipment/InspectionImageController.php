@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Menu\Equipment;
 
 use App\Http\Controllers\Controller;
+use App\Models\Equipment;
 use Illuminate\Http\Request;
 use App\Models\EquipmentInspection;
 use App\Models\EquipmentInspectionImage;
@@ -31,7 +32,9 @@ class InspectionImageController extends Controller
     public function create(Request $request)
     {
         // Set The Required Variables.
-        $inspection = EquipmentInspection::find(session('selected_equipment_inspection_id'));
+        // Set the get variable or abort 404.
+        $value = $_GET['inspection_id'] ?? abort(404);
+        $inspection = EquipmentInspection::find($value);
         // Return the create view.
         return view('menu.equipment.inspections.images.create')
             ->with('inspection', $inspection);
@@ -140,6 +143,8 @@ class InspectionImageController extends Controller
     {
         // Find required model instance.
         $selected_inspection_image = EquipmentInspectionImage::findOrFail($id);
+        // Selected Equipment Inspection Image ID.
+        $selected_equipment_inspection_id = $selected_inspection_image->equipment_inspection_id;
         // Check if the image path is not null.
         if ($selected_inspection_image->image_path != null) {
             // Delete the file from storage.
@@ -149,7 +154,7 @@ class InspectionImageController extends Controller
         $selected_inspection_image->delete();
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment-inspections.show', session('selected_equipment_inspection_id'))
+            ->route('equipment-inspections.show', $selected_equipment_inspection_id)
             ->with('success', 'You have successfully deleted the selected inspection image.');
     }
 }

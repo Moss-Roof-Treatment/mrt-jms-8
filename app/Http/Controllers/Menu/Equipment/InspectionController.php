@@ -28,8 +28,10 @@ class InspectionController extends Controller
      */
     public function create()
     {
+        // Set the get variable or abort 404.
+        $value = $_GET['equipment_id'] ?? abort(404);
         // Set The Required Variables.
-        $equipment = Equipment::find(session('selected_equipment_id'));
+        $equipment = Equipment::findOrFail($value);
         // Return the create view.
         return view('menu.equipment.inspections.create')
             ->with('equipment', $equipment);
@@ -45,23 +47,29 @@ class InspectionController extends Controller
     {
         // Validate The Request Data.
         $request->validate([
-            'inspection_date' => 'required',
+            'inspection_date' => 'required|date',
             'inspection_company' => 'required|string|min:5|max:100',
             'inspector_name' => 'required|string|min:5|max:100',
             'tag_and_test_id' => 'sometimes|nullable|min:3|max:20',
             'text' => 'required|string|min:10|max:500',
-            'next_inspection_date' => 'required'
+            'next_inspection_date' => 'sometimes|nullable|date'
         ]);
+
+        // dd($request->equipment_id);
+
         // Create a new model instance.
-        $new_inspection = EquipmentInspection::create([[
-            'equipment_id' => $request->equipment_id,
+        $new_inspection = EquipmentInspection::create([
+            'equipment_id' => 1,
             'inspection_date' => $request->inspection_date,
             'inspection_company' => ucwords($request->inspection_company),
             'inspector_name' => ucwords($request->inspector_name),
             'tag_and_test_id' => $request->tag_and_test_id,
             'text' => $request->text,
             'next_inspection_date' => $request->next_inspection_date
-        ]]);
+        ]);
+
+        // dd('here');
+
         // Return a redirect to the show route.
         return redirect()
             ->route('equipment-inspections.show', $new_inspection->id)
@@ -127,7 +135,7 @@ class InspectionController extends Controller
         // Find and update the selected model instance.
         $inspection = EquipmentInspection::findOrFail($id);
         // Update the selected model instance. 
-        $inspection([
+        $inspection->update([
             'inspection_date' => Carbon::parse($request->inspection_date)->startOfDay(),
             'inspection_company' => $request->inspection_company,
             'inspector_name' => $request->inspector_name,
@@ -151,6 +159,8 @@ class InspectionController extends Controller
     {
         // Find and delete the selected model instance and relationships.
         $selected_inspection = EquipmentInspection::findOrFail($id);
+        // Selected Equipment ID.
+        $selected_equipment_id = $selected_inspection->equipment_id;
         // Check if the selected model instance has any image relationships.
         if ($selected_inspection->images != null) {
             // Loop through each image.
@@ -165,7 +175,7 @@ class InspectionController extends Controller
         $selected_inspection->delete();
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', session('selected_equipment_id'))
+            ->route('equipment.show', $selected_equipment_id)
             ->with('success', 'You have successfully deleted the selected equipment inspection.');
     }
 }

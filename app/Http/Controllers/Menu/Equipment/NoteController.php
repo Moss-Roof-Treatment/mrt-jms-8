@@ -30,8 +30,10 @@ class NoteController extends Controller
     public function create()
     {
         // Set The Required Variables.
-        // Find the required equipment using the session variable.
-        $equipment = Equipment::find(session('selected_equipment_id'));
+        // Set the get variable or abort 404.
+        $value = $_GET['equipment_id'] ?? abort(404);
+        // Set The Required Variables.
+        $equipment = Equipment::findOrFail($value);
         // Find all Priorities.
         $priorities = Priority::all('id', 'title');
         // Return the create view.
@@ -123,7 +125,7 @@ class NoteController extends Controller
         // Update the selected note.
         $selected_note->update([
             'priority_id' => $request->priority_id ?? 4,
-            'text' => ucfirst($request->text),
+            'text' => $request->text,
         ]);
         // Return a redirect to the show route.
         return redirect()
@@ -141,6 +143,8 @@ class NoteController extends Controller
     {
         // Find the required model instance.
         $selected_note = Note::findOrFail($id);
+        // Selected Equipment ID.
+        $selected_equipment_id = $selected_note->equipment_id;
         // Check if the images relationship is not null.
         if ($selected_note->images != null) {
             // Loop through each image relationship.
@@ -155,7 +159,7 @@ class NoteController extends Controller
         $selected_note->delete();
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', session('selected_equipment_id'))
+            ->route('equipment.show', $selected_equipment_id)
             ->with('success', 'You have successfully deleted the selected equipment note.');
     }
 }

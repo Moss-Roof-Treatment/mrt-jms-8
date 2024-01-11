@@ -98,7 +98,7 @@ class Equipment extends Model
     public function get_equipment_image() 
     {
         // Check if the file exists on the server.
-        if (file_exists(public_path($this->image_path))) {
+        if ($this->image_path != null && file_exists(public_path($this->image_path))) {
             $value = $this->image_path;
         } else {
             $value = "storage/images/placeholders/tools-256x256.jpg";

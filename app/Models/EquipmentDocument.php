@@ -55,7 +55,7 @@ class EquipmentDocument extends Model
     public function get_document_image() 
     {
         // Check if the file exists on the server.
-        if (file_exists(public_path($this->image_path))) {
+        if ($this->image_path != null && file_exists(public_path($this->image_path))) {
             $value = $this->image_path;
         } else {
             $value = "storage/images/placeholders/document-256x256.jpg";
