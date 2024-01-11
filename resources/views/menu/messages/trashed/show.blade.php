@@ -109,7 +109,7 @@
         @if (!$selected_trashed_message->message_attachments->count())
           <div class="card">
             <div class="card-body">
-              <h5 class="text-center mb-0">Please fill out the search form</h5>
+              <h5 class="text-center mb-0">There are no attachments to display.</h5>
             </div> {{-- card-body --}}
           </div> {{-- card --}}
         @else
