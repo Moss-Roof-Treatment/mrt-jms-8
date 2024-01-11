@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Menu\Equipment;
 
 use App\Http\Controllers\Controller;
-use App\Models\Equipment;
-use Illuminate\Http\Request;
 use App\Models\EquipmentInspection;
 use App\Models\EquipmentInspectionImage;
 use Auth;
+use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 
 class InspectionImageController extends Controller

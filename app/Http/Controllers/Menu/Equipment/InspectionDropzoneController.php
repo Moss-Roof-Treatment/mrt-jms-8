@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EquipmentInspection;
 use App\Models\EquipmentInspectionImage;
+use Auth;
 use Intervention\Image\Facades\Image;
 use Session;
 
@@ -42,6 +43,7 @@ class InspectionDropzoneController extends Controller
             // Create the new model instance.
             $new_inspection_image = EquipmentInspectionImage::create([
                 'equipment_inspection_id' => $selected_inspection->id,
+                'staff_id' => Auth::id(),
                 'image_path' => 'storage/images/equipment/inspections/' . $filename,
             ]);
         }
