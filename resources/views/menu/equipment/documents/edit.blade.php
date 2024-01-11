@@ -70,13 +70,13 @@
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
-            <label for="document" class="col-md-2 col-form-label text-md-right">Document</label>
+            <label for="doc" class="col-md-2 col-form-label text-md-right">Document</label>
             <div class="col-md-9">
               <div class="custom-file">
-                <label class="custom-file-label" for="document" id="document_name">Please select a document to upload</label>
-                <input type="file" class="custom-file-input" name="document" id="document" aria-describedby="document">
+                <label class="custom-file-label" for="doc" id="doc_name">Please select a document to upload</label>
+                <input type="file" class="custom-file-input" name="document_name" id="doc" aria-describedby="doc">
               </div> {{-- custom-file --}}
-              @error('document')
+              @error('doc')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
                 </span>
@@ -147,11 +147,11 @@
   };
 
   // Display the filename of the selected file to the user in the view from the upload form.
-  var document = document.getElementById("document");
-  document.onchange = function(){
-    if (document.files.length > 0)
+  var doc = document.getElementById("doc");
+  doc.onchange = function(){
+    if (doc.files.length > 0)
     {
-      document.getElementById('document_name').innerHTML = document.files[0].name;
+      document.getElementById('doc_name').innerHTML = doc.files[0].name;
     }
   };
 </script>
