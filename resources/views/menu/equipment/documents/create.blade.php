@@ -14,7 +14,7 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a href="{{ route('equipment.show', $equipment->id) }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-items.show', $equipment->id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
         </a>
       </div> {{-- col pb-3 --}}
@@ -120,7 +120,7 @@
               {{-- modal --}}
               {{-- reset modal --}}
               {{-- cancel button --}}
-              <a href="{{ route('equipment.show', $equipment->id) }}" class="btn btn-dark">
+              <a href="{{ route('equipment-items.show', $equipment->id) }}" class="btn btn-dark">
                 <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
               </a>
               {{-- cancel button --}}

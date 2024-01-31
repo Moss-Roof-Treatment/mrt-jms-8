@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Equipment;
 use App\Models\EquipmentInspection;
+use App\Models\EquipmentInspectionImage;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class InspectionController extends Controller
 {
@@ -54,12 +58,9 @@ class InspectionController extends Controller
             'text' => 'required|string|min:10|max:500',
             'next_inspection_date' => 'sometimes|nullable|date'
         ]);
-
-        // dd($request->equipment_id);
-
         // Create a new model instance.
         $new_inspection = EquipmentInspection::create([
-            'equipment_id' => 1,
+            'equipment_id' => $request->equipment_id,
             'inspection_date' => $request->inspection_date,
             'inspection_company' => ucwords($request->inspection_company),
             'inspector_name' => ucwords($request->inspector_name),
@@ -67,9 +68,28 @@ class InspectionController extends Controller
             'text' => $request->text,
             'next_inspection_date' => $request->next_inspection_date
         ]);
-
-        // dd('here');
-
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $storage_location = 'storage/images/equipment/inspections/' . $filename;
+            // Set the new file location.
+            $location = public_path($storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+            // Create the new model instance.
+            EquipmentInspectionImage::create([
+                'equipment_inspection_id' => $new_inspection->id,
+                'image_path' => $storage_location,
+            ]);
+        }
         // Return a redirect to the show route.
         return redirect()
             ->route('equipment-inspections.show', $new_inspection->id)
@@ -153,7 +173,7 @@ class InspectionController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Responseimage
      */
     public function destroy($id)
     {
@@ -165,8 +185,10 @@ class InspectionController extends Controller
         if ($selected_inspection->images != null) {
             // Loop through each image.
             foreach($selected_inspection->images as $image) {
-                // Delete the image from storage.
-                unlink(public_path($image->image_path));
+                if($image->image_path && file_exists(public_path($image->image_path))) {
+                    // Delete the image from storage.
+                    unlink(public_path($image->image_path));
+                }
                 // Delete the image model instance.
                 $image->delete();
             }
@@ -175,7 +197,7 @@ class InspectionController extends Controller
         $selected_inspection->delete();
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', $selected_equipment_id)
+            ->route('equipment-items.show', $selected_equipment_id)
             ->with('success', 'You have successfully deleted the selected equipment inspection.');
     }
 }

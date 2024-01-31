@@ -8,7 +8,8 @@ use App\Models\Qualification;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class QualificationController extends Controller
 {
@@ -91,26 +92,32 @@ class QualificationController extends Controller
         ]);
         // Find the required user.
         $selected_user = User::find($request->staff_id);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/images/qualifications/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+        }
         // Create the new model instance.
         $new_qualification = Qualification::create([
             'staff_id' => $selected_user->id,
             'title' => $request->title,
             'description' => $request->description,
             'issue_date' => isset($request->issue_date) ? Carbon::parse($request->issue_date)->startOfDay() : null,
-            'expiry_date' => isset($request->expiry_date) ? Carbon::parse($request->expiry_date)->startOfDay() : null
+            'expiry_date' => isset($request->expiry_date) ? Carbon::parse($request->expiry_date)->startOfDay() : null,
+            'image_path' => $image_storage_location ?? null,
         ]);
-        // Create the new image if required.
-        if (isset($request->image)) {
-            // Create the new image.
-            $image = $request->file('image');
-            $filename = Str::slug($selected_user->getFullNameAttribute() . '-' . $request->title) . '.' . $image->getClientOriginalExtension(); 
-            $location = storage_path('app/public/images/qualifications/' . $filename);
-            Image::make($image)->orientate()->save($location);
-            // Update the selected model instance.
-            $new_qualification->update([
-                'image_path' => 'storage/images/qualifications/' . $filename
-            ]);
-        }
         // Return a redirect to the index route.
         return redirect()
             ->route('staff-qualifications.index', $new_qualification->id)
@@ -165,31 +172,37 @@ class QualificationController extends Controller
         ]);  
         // Find the required model instance.
         $selected_qualification = Qualification::findOrFail($id);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_qualification->image_path != null && file_exists(public_path($selected_qualification->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_qualification->image_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/images/qualifications/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+        }
         // Update the selected model instance.
         $selected_qualification->update([
             'title' => $request->title,
             'description' => $request->description,
             'issue_date' => $request->issue_date == null ? null : Carbon::parse($request->issue_date)->startOfDay(),
-            'expiry_date' => $request->expiry_date == null ? null : Carbon::parse($request->expiry_date)->startOfDay()
+            'expiry_date' => $request->expiry_date == null ? null : Carbon::parse($request->expiry_date)->startOfDay(),
+            'image_path' => $image_storage_location ?? $selected_qualification->image_path,
         ]);
-        // Check if a new image has been uploaded.
-        if (isset($request->image)){
-            // Delete the old image from storage.
-            if ($selected_qualification->image_path != null) {
-                if (file_exists(public_path($selected_qualification->image_path))) {
-                    unlink(public_path($selected_qualification->image_path));
-                }
-            }
-            // Create the new image.
-            $image = $request->file('image');
-            $filename = Str::slug($selected_qualification->staff->getFullNameAttribute() . '-' . $request->title) . '.' . $image->getClientOriginalExtension(); 
-            $location = storage_path('app/public/images/qualifications/' . $filename);
-            Image::make($image)->orientate()->save($location);
-            // Update the required model instance.
-            $selected_qualification->update([
-                'image_path' => 'storage/images/qualifications/' . $filename
-            ]);
-        }
+
         // Return a redirect to the show route.
         return redirect()
             ->route('staff-qualifications.show', $selected_qualification->id)
@@ -207,11 +220,10 @@ class QualificationController extends Controller
         // Set The Required Variables.
         // Find the required model instance.
         $selected_qualification = Qualification::findOrFail($id);
-        // Delete the images relationship instances.
-        if ($selected_qualification->image_path != null) {
-            if (file_exists(public_path($selected_qualification->image_path))) {
-                unlink(public_path($selected_qualification->image_path));
-            }
+        // Check if the file path value is not null and file exists on the server.
+        if ($selected_qualification->image_path != null && file_exists(public_path($selected_qualification->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($selected_qualification->image_path));
         }
         // Delete the selected model instance.
         $selected_qualification->delete();

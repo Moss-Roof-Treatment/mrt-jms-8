@@ -9,7 +9,8 @@ use App\Models\MaterialType;
 use App\Models\Task;
 use App\Models\TaskType;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class QuoteDocumentController extends Controller
 {
@@ -79,6 +80,34 @@ class QuoteDocumentController extends Controller
             'document' => 'sometimes|nullable|file|mimes:pdf|max:3072', // 3MB
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/documents/quoteDocuments/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+        }
+        // Check the request data for the required file.
+        if ($request->hasFile('quote_document')) {
+            // Set the uploaded file.
+            $document = $request->file('quote_document');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $document->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $document_storage_location = 'storage/documents/quoteDocuments/' . $filename;
+            // Move the file to its storage location.
+            $document->move(public_path('storage/documents/quoteDocuments/'), $filename);
+        }
         // Create the new model instance.
         $new_quote_document = QuoteDocument::create([
             'title' => ucwords($request->title),
@@ -86,25 +115,10 @@ class QuoteDocumentController extends Controller
             'material_type_id' => $request->material_type_id,
             'task_type_id' => $request->task_type_id,
             'task_id' => $request->task_id,
-            'is_default' => $request->is_default == 1 ? 1 : 0
+            'is_default' => $request->is_default == 1 ? 1 : 0,
+            'image_path' => $image_storage_location ?? null,
+            'document_path' => $document_storage_location ?? null,
         ]);
-        // Create the new image.
-        if (isset($request->image)) {
-            $image = $request->file('image');
-            $filename = Str::slug($request->title) . '-document-image' . '.' . $image->getClientOriginalExtension();
-            $new_quote_document->image_path = 'storage/documents/quoteDocuments/' . $filename;
-            $location = storage_path('app/public/documents/quoteDocuments/' . $filename);
-            Image::make($image)->orientate()->save($location);
-        }
-        // Create the new document.
-        if (isset($request->quote_document)) {
-            $document = $request->file('quote_document');
-            $filename = Str::slug($request->title) . '-document' . '.' . $document->getClientOriginalExtension();
-            $new_quote_document->document_path = 'storage/documents/quoteDocuments/' . $filename;
-            $request->quote_document->move(storage_path('app/public/documents/quoteDocuments'), $filename);
-        }
-        // Save the updated model instance.
-        $new_quote_document->save();
         // Return a redirect to the index route.
         return redirect()
             ->route('quote-document-settings.show', $new_quote_document->id)
@@ -174,6 +188,44 @@ class QuoteDocumentController extends Controller
         ]);
         // Find the required model instance.
         $selected_quote_document = QuoteDocument::findOrFail($id);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_quote_document->image_path != null && file_exists(public_path($selected_quote_document->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_quote_document->image_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/documents/quoteDocuments/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+        }
+        // Check the request data for the required file.
+        if ($request->hasFile('quote_document')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_quote_document->document_path != null && file_exists(public_path($selected_quote_document->document_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_quote_document->document_path));
+            }
+            // Set the uploaded file.
+            $document = $request->file('quote_document');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $document->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $document_storage_location = 'storage/documents/quoteDocuments/' . $filename;
+            // Move the file to its storage location.
+            $document->move(public_path('storage/documents/quoteDocuments/'), $filename);
+        }
         // Update the selected model instance.
         $selected_quote_document->update([
             'title' => ucwords($request->title),
@@ -181,39 +233,10 @@ class QuoteDocumentController extends Controller
             'material_type_id' => $request->material_type_id,
             'task_type_id' => $request->task_type_id,
             'task_id' => $request->task_id,
-            'is_default' => $request->is_default == 1 ? 1 : 0
+            'is_default' => $request->is_default == 1 ? 1 : 0,
+            'image_path' => $image_storage_location ?? $selected_quote_document->image_path,
+            'document_path' => $document_storage_location ?? $selected_quote_document->document_path,
         ]);
-        // Update the image.
-        if (isset($request->image)) {
-            if ($selected_quote_document->image_path != null) {
-                // Check if image file exists.
-                if (file_exists(public_path($selected_quote_document->image_path))) {
-                    // Delete the file.
-                    unlink(public_path($selected_quote_document->image_path));
-                }
-            }
-            $image = $request->file('image');
-            $filename = Str::slug($request->title) . '-document-image' . '.' . $image->getClientOriginalExtension();
-            $selected_quote_document->image_path = 'storage/documents/quoteDocuments/' . $filename;
-            $location = storage_path('app/public/documents/quoteDocuments/' . $filename);
-            Image::make($image)->orientate()->save($location);
-        }
-        // Update the document.
-        if (isset($request->quote_document)) {
-            if ($selected_quote_document->document_path != null) {
-                // Check if image file exists.
-                if (file_exists(public_path($selected_quote_document->document_path))) {
-                    // Delete the file.
-                    unlink(public_path($selected_quote_document->document_path));
-                }
-            }
-            $document = $request->file('quote_document');
-            $filename = Str::slug($request->title) . '-document' . '.' . $document->getClientOriginalExtension();
-            $selected_quote_document->document_path = 'storage/documents/quoteDocuments/' . $filename;
-            $request->quote_document->move(storage_path('app/public/documents/quoteDocuments'), $filename);
-        }
-        // Save the updated model instance.
-        $selected_quote_document->save();
         // Return a redirect to the index route.
         return redirect()
             ->route('quote-document-settings.show', $id)

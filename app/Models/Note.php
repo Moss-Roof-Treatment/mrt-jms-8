@@ -42,6 +42,7 @@ class Note extends Model
         'recipient_acknowledged_at',
         'jms_seen_at',
         'jms_acknowledged_at',
+        'image_path',
     ];
 
     /**
@@ -65,7 +66,7 @@ class Note extends Model
     */
 
     /**
-     * Get the job associated with the job note.
+     * Get the job associated with the note.
      */
     public function job()
     {
@@ -73,7 +74,7 @@ class Note extends Model
     }
 
     /**
-     * Get the quote associated with the job note.
+     * Get the quote associated with the note.
      */
     public function quote()
     {
@@ -81,7 +82,7 @@ class Note extends Model
     }
 
     /**
-     * Get the priority associated with the job note.
+     * Get the priority associated with the note.
      */
     public function priority()
     {
@@ -89,7 +90,7 @@ class Note extends Model
     }
 
     /**
-     * Get the sender associated with the job note.
+     * Get the sender associated with the note.
      */
     public function sender()
     {
@@ -97,10 +98,26 @@ class Note extends Model
     }
 
     /**
-     * Get the recipient associated with the job note.
+     * Get the recipient associated with the note.
      */
     public function recipient()
     {
         return $this->belongsTo('App\Models\User');
+    }
+
+    /**
+     * Get the equipment associated with the note.
+     */
+    public function equipment()
+    {
+        return $this->belongsTo('App\Models\Equipment');
+    }
+
+    /**
+     * Get the recipient associated with the note.
+     */
+    public function note_images()
+    {
+        return $this->hasMany('App\Models\NoteImage');
     }
 }

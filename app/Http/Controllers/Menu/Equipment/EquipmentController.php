@@ -12,7 +12,8 @@ use App\Models\EquipmentInspection;
 use App\Models\Note;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class EquipmentController extends Controller
 {
@@ -37,7 +38,7 @@ class EquipmentController extends Controller
         // Find all of the required model instances.
         $all_equipment = Equipment::orderBy('id', 'desc')->paginate(20);
         // Return the index view.
-        return view('menu.equipment.index')
+        return view('menu.equipment.items.index')
             ->with('all_equipment', $all_equipment);
     }
 
@@ -60,7 +61,7 @@ class EquipmentController extends Controller
             ->with('account_role')
             ->get();
         // Return the create view.
-        return view('menu.equipment.create')
+        return view('menu.equipment.items.create')
             ->with([
                 'all_categories' => $all_categories,
                 'all_groups' => $all_groups,
@@ -97,12 +98,20 @@ class EquipmentController extends Controller
             'owner_id' => $request->owner_id,
             'description' => ucwords($request->description)
         ]);
-        // Equipment image.
-        if (isset($request->image)) {
-            $file = $request->file('image');
-            $filename = uniqid() . '-' . Str::slug($equipment->title) . '-equipment' . '.' . $file->getClientOriginalExtension(); 
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::slug($equipment->title) . '-equipment-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/equipment/' . $filename);
-            Image::make($file)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $equipment->update([
                 'image_path' => 'storage/images/equipment/' . $filename
@@ -110,7 +119,7 @@ class EquipmentController extends Controller
         }
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', $equipment->id)
+            ->route('equipment-items.show', $equipment->id)
             ->with('success', 'You have successfully created the new equipment.');
     }
 
@@ -138,7 +147,7 @@ class EquipmentController extends Controller
             ->orderBy('id', 'desc')
             ->get();
         // Return the show view.
-        return view('menu.equipment.show')
+        return view('menu.equipment.items.show')
             ->with([
                 'equipment' => $equipment,
                 'equipment_inspections' => $equipment_inspections,
@@ -168,7 +177,7 @@ class EquipmentController extends Controller
             ->with('account_role')
             ->get();
         // Return the edit view.
-        return view('menu.equipment.edit')
+        return view('menu.equipment.items.edit')
             ->with([
                 'selected_equipment' => $selected_equipment,
                 'all_categories' => $all_categories,
@@ -209,17 +218,25 @@ class EquipmentController extends Controller
             'owner_id' => $request->owner_id,
             'description' => ucwords($request->description)
         ]);
-        // Update the image if required.
-        if (isset($request->image)){
-            if ($equipment->image_path != null) {
-                if (file_exists(public_path($equipment->image_path))) {
-                    unlink(public_path($equipment->image_path));
-                }
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($equipment->image_path != null && file_exists(public_path($equipment->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($equipment->image_path));
             }
-            $file = $request->file('image');
-            $filename = uniqid() . '-' . Str::slug($equipment->title) . '-equipment' . '.' . $file->getClientOriginalExtension();
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::slug($equipment->getFullNameAttribute()) . '-equipment-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/equipment/' . $filename);
-            Image::make($file)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $equipment->update([
                 'image_path' => 'storage/images/equipment/' . $filename
@@ -227,7 +244,7 @@ class EquipmentController extends Controller
         }
         // Return a redirect to the show view.
         return redirect()
-            ->route('equipment.show', $equipment->id)
+            ->route('equipment-items.show', $equipment->id)
             ->with('success', 'You have successfully edited the selected equipment.');
     }
 
@@ -242,46 +259,63 @@ class EquipmentController extends Controller
         // Find the required model instance.
         $equipment = Equipment::findOrFail($id);
         // Delete the inspections and images of the selected equipment.
-        if ($equipment->inspections != null) {
-            foreach($equipment->inspections as $inspection) {
+        if ($equipment->equipment_inspections()->exists() != null) {
+            foreach($equipment->equipment_inspections as $inspection) {
                 foreach($inspection->images as $image) {
-                    unlink(public_path($image->image_path));
+                    if ($image->image_path != null && file_exists(public_path($image->image_path))) {
+                        unlink(public_path($image->image_path));
+                    }
                     $image->delete();
                 }
+                // dd('inspection time');
                 $inspection->delete();
             }
         }
+
+        // dd('inspections section complete');
+
         // Delete the notes and images of the selected equipment.
-        if ($equipment->notes != null) {
+        if ($equipment->notes()->exists() != null) {
             foreach($equipment->notes as $note) {
-                foreach($note->images as $image) {
-                    unlink(public_path($image->image_path));
+                foreach($note->note_images as $image) {
+                    if ($image->image_path != null && file_exists(public_path($image->image_path))) {
+                        unlink(public_path($image->image_path));
+                    }
                     $image->delete();
                 }
+                // dd('note time');
                 $note->delete();
             }
         }
+        
+        // dd('notes section complete');
+
         // Delete the document and images of the selected equipment.
-        if ($equipment->documents != null) {
-            foreach ($equipment->documents as $equipment_item) {
-                if ($equipment_item->image_path != null) {
-                    unlink(public_path($equipment_item->image_path));
+        if ($equipment->equipment_documents()->exists() != null) {
+            foreach ($equipment->equipment_documents as $document) {
+                if ($document->image_path != null && file_exists(public_path($document->image_path))) {
+                    unlink(public_path($document->image_path));
                 }
-                if ($equipment_item->image_path != null) {
-                    unlink(public_path($equipment_item->document_path));
+                if ($document->document_path != null && file_exists(public_path($document->document_path))) {
+                    unlink(public_path($document->document_path));
                 }
-                $equipment_item->delete();
+                // dd('document time');
+                $document->delete();
             }
         }
+        
+        // dd('all items done');
+        // dd('inspections section complete');
+
         // Delete the selected equipment item and return a redirect to equipment index page.
-        if ($equipment->image_path != null) {
+        if ($equipment->image_path != null && file_exists(public_path($equipment->image_path))) {
             unlink(public_path($equipment->image_path));   
         }
         // Delete the selected model instance.
         $equipment->delete();
         // Return redirect to the index route.
         return redirect()
-            ->route('equipment.index')
+            ->route('equipment-items.index')
             ->with('success', 'You have successfully deleted the selected equipment.');
     }
 }

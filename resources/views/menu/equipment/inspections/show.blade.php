@@ -14,7 +14,7 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a href="{{ route('equipment.show', $inspection->equipment_id) }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-items.show', $inspection->equipment_id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
         </a>
       </div> {{-- col pb-3 --}}
@@ -64,8 +64,7 @@
     </div> {{-- row row-cols-1 row-cols-sm-4 pt-3 --}}
     {{-- navigation --}}
 
-    <h5 class="text-primary my-3"><b>Inspection Details</b></h5>
-
+    <h5 class="text-primary my-4"><b>Inspection Details</b></h5>
     <div class="table-responsive">
       <table class="table table-bordered table-fullwidth table-striped bg-white">
         <thead class="table-secondary">
@@ -91,14 +90,14 @@
       </table>
     </div> {{-- table-responsive --}}
 
-    <h5 class="text-primary my-3"><b>Inspection Comment</b></h5>
+    <h5 class="text-primary my-4"><b>Inspection Comment</b></h5>
     <div class="card shadow-sm">
       <div class="card-body">
         {{ $inspection->text }}
       </div> {{-- card-body --}}
     </div> {{-- card --}}
 
-    <h5 class="text-primary my-3"><b>Inspection Images</b></h5>
+    <h5 class="text-primary my-4"><b>Inspection Images</b></h5>
     @if (!$inspection->images->count())
       <div class="card shadow-sm">
         <div class="card-body text-center">
@@ -116,7 +115,7 @@
                   {{-- modal button --}}
                   <a type="button" data-toggle="modal" data-target="#imageModal{{$image->id}}">
                     @if ($image->image_path == null)
-                      <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}" alt="">
+                      <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}" alt="placeholder">
                     @else
                       <img class="img-fluid shadow-sm" src="{{ asset($image->image_path) }}" alt="">
                     @endif
@@ -149,7 +148,6 @@
                   </div> {{-- modal fade --}}
                   {{-- modal --}}
                   {{-- image modal --}}
-
                 </div> {{-- col-sm-2 --}}
               @endforeach
             </div> {{-- row row-cols-2 --}}

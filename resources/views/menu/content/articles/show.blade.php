@@ -70,16 +70,16 @@
     <div class="row">
       <div class="col-sm-7">
 
-        <h5 class="text-primary my-3"><b>Blog Preview</b></h5>
+        <h5 class="text-primary my-3"><b>Article Preview</b></h5>
 
         @if (!$selected_article->article_images->count())
           <img class="img-fluid" src="{{ asset('storage/images/placeholders/article-1200x630.jpg') }}" alt="Placeholder Image">
         @else
           @if ($selected_article->article_images->count() == 1)
-              {{-- single image --}}
-              <img class="img-fluid" src="{{ asset($selected_article->article_images->first()->image_path) }}" alt="Article Image">
-              <p class="text-center">{{ $selected_article->article_images->first()->description }}</p>
-              {{-- single image --}}
+            {{-- single image --}}
+            <img class="img-fluid" src="{{ asset($selected_article->article_images->first()->image_path) }}" alt="Article Image">
+            <p class="text-center">{{ $selected_article->article_images->first()->description }}</p>
+            {{-- single image --}}
           @elseif ($selected_article->article_images->count() == 2)
             <div class="row">
               @foreach($selected_article->article_images as $image)
@@ -90,7 +90,7 @@
             </div>
           @else
             {{-- carousel --}}
-            <div id="blogCarouselControls" class="carousel slide carousel-fade" data-ride="carousel">
+            <div id="articleCarouselControls" class="carousel slide carousel-fade" data-ride="carousel">
               <div class="carousel-inner">
                 @foreach($selected_article->article_images as $image)
                 <div class="carousel-item {{ $loop->index == 0 ? 'active' : '' }}">
@@ -102,11 +102,11 @@
                 </div>
                 @endforeach
               </div>
-              <button class="carousel-control-prev" type="button" data-target="#blogCarouselControls" data-slide="prev">
+              <button class="carousel-control-prev" type="button" data-target="#articleCarouselControls" data-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="sr-only">Previous</span>
               </button>
-              <button class="carousel-control-next" type="button" data-target="#blogCarouselControls" data-slide="next">
+              <button class="carousel-control-next" type="button" data-target="#articleCarouselControls" data-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="sr-only">Next</span>
               </button>
@@ -168,7 +168,7 @@
                     @if ($image->image_path == null)
                       <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/article-256x256.png') }}" alt="placeholder image">
                     @else
-                      <img class="img-fluid" src="{{ asset($image->image_path) }}" alt="Blog image">
+                      <img class="img-fluid" src="{{ asset($image->image_path) }}" alt="Article image">
                     @endif
                   </button>
                   {{-- modal button --}}
@@ -179,9 +179,9 @@
                         @if ($image->image_path == null)
                           <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/article-1200x630.jpg') }}" alt="placeholder image">
                         @else
-                          <img class="img-fluid" src="{{ asset($image->image_path) }}" alt="Blog image">
+                          <img class="img-fluid" src="{{ asset($image->image_path) }}" alt="Article image">
                         @endif
-                        <a href="{{ route('blogs-images.show', $image->id) }}" class="btn btn-primary">
+                        <a href="{{ route('article-images.show', $image->id) }}" class="btn btn-primary">
                           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Image Details
                         </a>
                       </div>
@@ -195,7 +195,7 @@
           @endforeach
         @endif
 
-        <h5 class="text-primary my-3"><b>Blog Details</b></h5>
+        <h5 class="text-primary my-3"><b>Article Details</b></h5>
         <div class="table-responsive">
           <table class="table table-bordered table-fullwidth table-striped bg-white">
             <tbody>

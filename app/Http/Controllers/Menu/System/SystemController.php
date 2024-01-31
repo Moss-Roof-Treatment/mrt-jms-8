@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\System;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class SystemController extends Controller
 {
@@ -76,17 +77,59 @@ class SystemController extends Controller
             'default_tax_value' => 'required|string',
             'default_superannuation_value' => 'required|string',
             'default_total_commission' => 'required|string',
-
             'default_petrol_price' => 'required|numeric',
             'default_petrol_usage' => 'required|numeric',
-
             'letterhead' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
             'logo' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
         // Find the required model instance.
         $selected_system = System::findOrFail($id); // Moss Roof Treatment.
-
+        // Check the request data for the required file.
+        if ($request->hasFile('letterhead')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_system->letterhead_path != null && file_exists(public_path($selected_system->letterhead_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_system->letterhead_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('letterhead');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $letterhead_storage_location = 'storage/images/letterheads/' . $filename;
+            // Set the new file location.
+            $location = public_path($letterhead_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+        }
+        // Find the required model instance.
+        $selected_system = System::findOrFail($id); // Moss Roof Treatment.
+        // Check the request data for the required file.
+        if ($request->hasFile('logo')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_system->logo_path != null && file_exists(public_path($selected_system->logo_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_system->logo_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('logo');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $logo_storage_location = 'storage/images/logos/' . $filename;
+            // Set the new file location.
+            $location = public_path($logo_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+        }
         // Update the selected model instance.
         $selected_system->update([
             'title' => ucfirst($request->title),
@@ -105,42 +148,9 @@ class SystemController extends Controller
             'default_total_commission' => $request->default_total_commission,
             'default_petrol_price' => intval(preg_replace("/[^0-9.]/", "", $request->default_petrol_price) * 100),
             'default_petrol_usage' => $request->default_petrol_usage,
+            'letterhead_path' => $letterhead_storage_location ?? $selected_system->letterhead_path,
+            'logo_path' => $logo_storage_location ?? $selected_system->logo_path,
         ]);
-
-        // Update image if required.
-        if (isset($request->letterhead)){
-            if ($selected_system->letterhead != null) {
-                if (file_exists(public_path($selected_system->letterhead))) {
-                    unlink(public_path($selected_system->letterhead));
-                }
-            }
-            $letterhead = $request->file('letterhead');
-            $filename = Str::slug($selected_system->title) . '_letterhead' . '.' . $letterhead->getClientOriginalExtension();
-            $location = public_path('storage/images/letterheads/' . $filename);
-            Image::make($letterhead)->orientate()->save($location);
-            // Update the selected model instance.
-            $selected_system->update([
-                'letterhead_path' => 'storage/images/letterheads/' . $filename
-            ]);
-        }
-
-        // Update logo if required.
-        if (isset($request->logo)){
-            if ($selected_system->logo != null) {
-                if (file_exists(public_path($selected_system->logo))) {
-                    unlink(public_path($selected_system->logo));
-                }
-            }
-            $logo = $request->file('logo');
-            $filename = Str::slug($selected_system->title) . '-logo' . '.' . $logo->getClientOriginalExtension();
-            $location = public_path('storage/images/logos/' . $filename);
-            Image::make($logo)->orientate()->save($location);
-            // Update the selected model instance.
-            $selected_system->update([
-                'logo_path' => 'storage/images/logos/' . $filename
-            ]);
-        }
-
         // Return a redirect to the show route
         return redirect()
             ->route('systems.show', $id)

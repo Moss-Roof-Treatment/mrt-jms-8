@@ -1,12 +1,6 @@
-@extends('layouts.jquery')
+@extends('layouts.app')
 
 @section('title', '- Invoices - Invoicing Menu')
-
-@push('css')
-{{-- jquery datatables css --}}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
-{{-- jquery datatables css --}}
-@endpush
 
 @section('content')
 <section>

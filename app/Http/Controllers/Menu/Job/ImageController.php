@@ -12,7 +12,8 @@ use App\Models\JobImage;
 use App\Models\JobImageType;
 use Auth;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Session;
 
 class ImageController extends Controller
@@ -63,54 +64,49 @@ class ImageController extends Controller
     {
         // Set The Required Variables.
         $selected_job_id = $request->job_id;
-        // Check if the file exists in the request data.
+        // Get the image type title.
+        $selected_image_type = JobImageType::find($request->image_type);
+        // Check the request data for the required file.
         if ($request->hasFile('file')) {
-            // Create the new image.
-            $image = $request->file('file');
-
-            // New model instance.
-            $new_job_image = new JobImage;
-            $new_job_image->job_id = $selected_job_id;
-            $new_job_image->staff_id = Auth::id();
-            $new_job_image->job_image_type_id = $request->image_type;
-            $new_job_image->colour_id = 1; // Set default colour value.
-
-            // Get the image type title.
-            $selected_image_type = JobImageType::find($request->image_type);
-
-            $new_job_image->title = $selected_image_type->title . ' image';
-            $new_job_image->description = 'A ' . $selected_image_type->title . ' image.';
-
-            // Create the new image.
+            // Create the new model instance.
+            $new_job_image = JobImage::create([
+                'job_id' => $selected_job_id,
+                'staff_id' => Auth::id(),
+                'job_image_type_id' => $request->image_type,
+                'colour_id' => 1, // Set default colour value.
+                'title' => $selected_image_type->title . ' image',
+                'description' => 'A ' . $selected_image_type->title . ' image.',
+            ]);
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
             $filename = Str::slug($new_job_image->job_id . ' ' . $selected_image_type->title) . '-' . rand(0, 99) . time() . '.' . $image->getClientOriginalExtension();
-            $new_job_image->image_path = 'storage/images/jobs/' . $filename;      
-            $location = public_path($new_job_image->image_path);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
-
-            // Save The new job image.
-            $new_job_image->save();
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        // Reset the image identifier.
-        |--------------------------------------------------------------------------
-        */
-
-        // Find all job images of the uploaded type.
-        $all_job_images = JobImage::where('job_id', $selected_job_id)
-            ->where('job_image_type_id', $request->image_type)
-            ->get();
-
-        // Set an integer to 1 to be incremented in the loop
-        $i = 1;
-
-        // Loop through each job image.
-        foreach($all_job_images as $selected_job_image) {
-
-            // Update the image identifier.
-            $selected_job_image->image_identifier = substr($selected_job_image->job_image_type->title, 0, 1) . ' - ' . $i++;
-            $selected_job_image->save();
+            // Set the new file location.
+            $location = storage_path('app/public/images/jobs/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $new_job_image->update([
+                'image_path' => 'storage/images/jobs/' . $filename
+            ]);
+            // RESET THE IMAGE IDENTIFIER
+            // Find all job images of the uploaded type.
+            $all_job_images = JobImage::where('job_id', $selected_job_id)
+                ->where('job_image_type_id', $request->image_type)
+                ->get();
+            // Set an integer to 1 to be incremented in the loop
+            $i = 1;
+            // Loop through each job image.
+            foreach($all_job_images as $selected_job_image) {
+                // Update the image identifier.
+                $selected_job_image->update([
+                    'image_identifier' => substr($selected_job_image->job_image_type->title, 0, 1) . ' - ' . $i++
+                ]);
+            }
         }
 
         Session::flash('success', 'You have successfully uploaded the selected job image(s)');
@@ -162,75 +158,70 @@ class ImageController extends Controller
             'image_type_id' => 'required',
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
         // Find the required model instance.
         $selected_image = JobImage::findOrFail($id);
-
-        // Update the selected model instance.
-        $selected_image->job_id = $request->job_id;
-        $selected_image->job_image_type_id = $request->image_type_id;
-        $selected_image->title = ucfirst($request->title);
-        $selected_image->colour_id = $request->title_colour;
-        $selected_image->description = ucfirst($request->description);
-        // Check if new default title has been selected.
+        // Set the required variables.
+        // Default image title.
         if (isset($request->default_image_title)) {
-            // Find the default image text.
+            // Find the default image title.
             $default_image_title = DefaultImageTitle::find($request->default_image_title);
             // Concatinate the default image text to the title. 
-            $selected_image->title = ucfirst($selected_image->title . ' ' . $default_image_title->text);
+            $new_image_title = ucfirst($selected_image->title . ' ' . $default_image_title->text);
         }
-        // Check if new default text has been selected.
+        // Default image text.
         if (isset($request->default_image_text)) {
             // Find the default image text.
             $default_image_text = DefaultImageText::find($request->default_image_text);
             // Concatinate the default image text to the description. 
-            $selected_image->description = ucfirst($selected_image->description . ' ' . $default_image_text->text);
+            $new_image_text = ucfirst($selected_image->description . ' ' . $default_image_text->text);
         }
-        // Get the image type title
-        $selected_image_type = JobImageType::find($request->image_type_id);
-
-        if ($request->hasFile('image')){
-
-            if ($selected_image->image_path != null) {
-
-                if (file_exists(public_path($selected_image->image_path))) {
-
-                    // Delete the previous image if it exists.
-                    unlink(public_path($selected_image->image_path));
-                }
+        // Check if a new image has been uploaded.
+        if ($request->hasFile('image')) {
+            // Get the image type title
+            $selected_image_type = JobImageType::find($request->image_type_id);
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_image->image_path != null && file_exists(public_path($selected_image->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_image->image_path));
             }
-
             // Create the new job image.
             $image = $request->file('image');
-            // Create file name from job id, image type and time.
+            // Set the new file name.
             $filename = Str::slug($selected_image->job_id . ' ' . $selected_image_type->title) . '-' . time() . '.' . $image->getClientOriginalExtension();
-            // Create the image path.
-            $selected_image->image_path = 'storage/images/jobs/' . $filename;        
-            // Create the image location.
+            // Set the new file location.
             $location = storage_path('app/public/images/jobs/' . $filename);
-            // Resize the image and keep the aspect ratio, then save the image.
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
-
-            // Reset the image identifier.
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+            // Formatted path for database.
+            $new_image_path = 'storage/images/jobs/' . $filename;
+            // RESET THE IMAGE IDENTIFIER
             // Find all job images of the uploaded type.
             $all_job_images = JobImage::where('job_id', $selected_image->job_id)
-            ->where('job_image_type_id', $request->image_type)
-            ->get();
-
+                ->where('job_image_type_id', $request->image_type)
+                ->get();
             // Set an integer to 1 to be incremented in the loop
             $i = 1;
-
             // Loop through each job image.
             foreach($all_job_images as $selected_job_image) {
-
                 // Update the image identifier.
-                $selected_job_image->image_identifier = substr($selected_job_image->job_image_type->title, 0, 1) . ' - ' . $i++;
-                $selected_job_image->save();
+                $selected_job_image->update([
+                    'image_identifier' => substr($selected_job_image->job_image_type->title, 0, 1) . ' - ' . $i++
+                ]);
             }
-        }
-
-        // Save the selected model instance.
-        $selected_image->save();
+        };
+        // Update the selected model instance.
+        $selected_image->update([
+            'job_id' => $request->job_id,
+            'job_image_type_id' => $request->image_type_id,
+            'title' => isset($new_image_title) ? $new_image_title : $selected_image->title,
+            'colour_id' => $request->title_colour,
+            'description' => isset($new_image_text) ? $new_image_text : $selected_image->description,
+            'image_path' => isset($new_image_path) ? $new_image_path : $selected_image->image_path
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('job-images.show', $id)

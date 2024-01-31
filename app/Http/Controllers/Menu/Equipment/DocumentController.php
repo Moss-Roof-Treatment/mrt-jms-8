@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Equipment;
 use App\Models\EquipmentDocument;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class DocumentController extends Controller
 {
@@ -27,7 +28,7 @@ class DocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create()
     {
         // Set the get variable or abort 404.
         $value = $_GET['equipment_id'] ?? abort(404);
@@ -60,19 +61,41 @@ class DocumentController extends Controller
             'description' => $request->description
         ]);
         // Create the new image if required.
+        // if ($request->hasFile('image')) {
+        //     // Create the image.
+        //     $image = $request->file('image');
+        //     $filename = Str::slug($new_document->title) . '-image' . '.' . $image->getClientOriginalExtension();
+        //     $location = storage_path('app/public/images/equipment/documents/' . $filename);
+        //     Image::make($image)->orientate()->save($location);
+        //     // Update the selected model instance.
+        //     $new_document->update([
+        //         'image_path' => 'storage/images/equipment/documents/' . $filename
+        //     ]);
+        // }
+
+        // Image Upload.
+        // Check if an image has been supplied.
         if ($request->hasFile('image')) {
-            // Create the image.
+            // Set the uploaded file.
             $image = $request->file('image');
+            // Set the new file name.
             $filename = Str::slug($new_document->title) . '-image' . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/equipment/documents/' . $filename);
-            Image::make($image)->orientate()->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_document->update([
                 'image_path' => 'storage/images/equipment/documents/' . $filename
             ]);
         }
-        // Create the new logo if required.
-        if (!$request->document == null) {
+
+        // Create the new document if required.
+        if ($request->hasFile('document')) {
             // Create the logo.
             $document = $request->file('document');
             $filename = Str::slug($new_document->title) . '-' . time() . '.' . $document->getClientOriginalExtension();
@@ -85,7 +108,7 @@ class DocumentController extends Controller
         }
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', $new_document->equipment_id)
+            ->route('equipment-items.show', $new_document->equipment_id)
             ->with('success', 'You have successfully created the new equipment document.');
     }
 
@@ -150,11 +173,18 @@ class DocumentController extends Controller
                     unlink(public_path($selected_document->image_path));
                 }
             }
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('image');
+            // Set the new file name.
             $filename = Str::slug($selected_document->title) . '-image' . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/equipment/documents/' . $filename);
-            Image::make($image)->orientate()->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
             // Update the selected model instance.
             $selected_document->update([
                 'image_path' => 'storage/images/equipment/documents/' . $filename
@@ -212,7 +242,7 @@ class DocumentController extends Controller
         $selected_document->delete();
         // Return a redirect tothe equipment show route.
         return redirect()
-            ->route('equipment.show', $selected_equipment_id)
+            ->route('equipment-items.show', $selected_equipment_id)
             ->with('success', 'You have successfully deleted the selected equipment document.');
     }
 }

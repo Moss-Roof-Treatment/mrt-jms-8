@@ -44,7 +44,7 @@
 
       @if ($selected_note->equipment_id != null)
         <div class="col pb-3">
-          <a class="btn btn-primary btn-block" href="{{ route('equipment.show', $selected_note->equipment_id) }}">
+          <a class="btn btn-primary btn-block" href="{{ route('equipment-items.show', $selected_note->equipment_id) }}">
             <i class="fas fa-tools mr-2" aria-hidden="true"></i>View Equipment
           </a>
         </div> {{-- col pb-3 --}}

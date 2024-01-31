@@ -8,7 +8,8 @@ use App\Models\Article;
 use App\Models\ArticleImage;
 use Auth;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ArticleImageController extends Controller
 {
@@ -49,43 +50,37 @@ class ArticleImageController extends Controller
         $request->validate([
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
         // Find the required model instance.
         $selected_article = Article::find($request->article_id);
-
-        // Create the new model relationship instances.
-        // Check if the file exists in the request data.
-        if ($request->hasFile('image')) {
-            // Set an int for the photo count.
-            if ($selected_article->article_images()->exists()) {
-                $i = $selected_article->article_images()->count() + 1;
-            } else {
-                $i = 1; 
-            }
+        // Check the request data for the required file.
+        if ($request->hasFile('file')) {
+            // Check if any images already exist.
+            $selected_article->article_images()->exists()
+                ? $i = $selected_article->article_images()->count() + 1
+                : $i = 1;
             // Loop through each uploaded image.
             foreach($request->file('image') as $image){
-                // New model instance.
-                $new_article_image = new ArticleImage;
-                // Assign data to the image.
-                $new_article_image->article_id = $selected_article->id;
-                $new_article_image->staff_id = Auth::id();
-                // Assign featured status if the current image count variable equals 1.
-                if ($i == 1) {
-                    // Set the featured status.
-                    $new_article_image->is_featured = 1;
-                }
-                // Use the integer for the name without change.
+                 // Set the new file name.
                 $filename = Str::slug($selected_article->title) . '-image-' . $i . '-' . time() . '.' . $image->getClientOriginalExtension();
-                $new_article_image->image_path = 'storage/images/content/articles/' . $filename;
+                // Set the new file location.
                 $location = storage_path('app/public/images/content/articles/' . $filename);
-                Image::make($image)->orientate()->resize(1280, 720)->save($location);
-                // Save The new job image.
-                $new_article_image->save();
+                // Create new manager instance with desired driver.
+                $manager = new ImageManager(new Driver());
+                // Read image from filesystem
+                $image = $manager->read($image);
+                // Encoding jpeg data
+                $image->resize(1280, 720)->toJpeg(80)->save($location);
+                // Create the new model instance.
+                ArticleImage::create([
+                    'article_id' => $selected_article->id,
+                    'image_path' => 'storage/images/content/articles/' . $filename,
+                    'staff_id' => Auth::id(),
+                    'is_featured' => $i == 1 ? 1 : 0
+                ]);
                 // Increment the i variable for the next round of looping.
                 $i++;
             }
         }
-
         // Return a redirect back.
         return back()
             ->with('success', 'You have successfully uploaded the selected article image(s).');
@@ -118,7 +113,9 @@ class ArticleImageController extends Controller
         $selected_article_image = ArticleImage::findOrFail($id);
         // Return the edit view.
         return view('menu.content.articles.images.edit')
-            ->with('selected_article_image', $selected_article_image);
+            ->with([
+                'selected_article_image' => $selected_article_image
+            ]);
     }
 
     /**
@@ -135,64 +132,58 @@ class ArticleImageController extends Controller
             'description' => 'sometimes|nullable|string|min:10|max:1000',
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
-        // Find and update the selected model instance.
+        // Find the required model instance.
         $selected_article_image = ArticleImage::findOrFail($id);
-        $selected_article_image->is_visible = $request->is_visible;
-        $selected_article_image->is_featured = $request->is_featured;
-        $selected_article_image->alt_tag_label = $request->alt_tag_label;
-        $selected_article_image->description = $request->description;
-
-        // Update the image if required.
-        if (isset($request->image)) {
-            // Check if image path exists.
-            if ($selected_article_image->image_path != null) {
-                // Check if image file exists.
-                if (file_exists(public_path($selected_article_image->image_path))) {
-                    // Delete the selected image.
-                    unlink(public_path($selected_article_image->image_path));
-                }
+        // Check if a new image has been uploaded.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_article_image->image_path != null && file_exists(public_path($selected_article_image->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_article_image->image_path));
             }
-
-            // Get the image data from the request.
-            $image = $request->file('image_path');
-
-            // Set an int for the photo count.
-            if ($selected_article_image->article->article_images()->exists()) {
-                $i = $selected_article_image->article->article_images()->count() + 1;
-            }
-
-            // Use the integer for the name without change.
+            // Check if any images already exist.
+            $selected_article_image->article->article_images()->exists()
+                ? $i = $selected_article_image->article->article_images()->count() + 1
+                : $i = 1;
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
             $filename = Str::slug($selected_article_image->article->title) . '-image-' . $i . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $selected_article_image->image_path = 'storage/images/content/articles/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/content/articles/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
-        }
-
-        // Save the model instance.
-        $selected_article_image->save();
-
-        // Set featured image status is required.
-        // if the selected article image is set to featured.
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+            // Formatted path for database.
+            $new_image_path = 'storage/images/content/articles/' . $filename;
+        };
+        // Update the selected model instance.
+        $selected_article_image->update([
+            'is_visible' => $request->is_visible,
+            'is_featured' => $request->is_featured,
+            'alt_tag_label' => $request->alt_tag_label,
+            'description' => $request->description,
+            'image_path' => isset($new_image_path) ? $new_image_path : $selected_article_image->image_path
+        ]);
+        // Check if the featured status has been set.
         if ($selected_article_image->is_featured == 1) {
-
-            // Find all article images that are not the one set to featured.
-            $other_images = ArticleImage::where('article_id', $selected_article_image->article_id)
+            // Get all related article images that are not set to featured.
+            $non_featured_images = ArticleImage::where('article_id', $selected_article_image->article_id)
                 ->where('id', '!=', $selected_article_image->id)
                 ->get();
-
-            // Loop through each article image.
-            foreach($other_images as $image) {
-
-                // Set the featured status to 0.
-                $image->is_featured = 0;
-                $image->save();
+            // Set all other images to not featured.
+            foreach($non_featured_images as $image) {
+                $image->update([
+                    'is_featured' => 0
+                ]);
             }
         }
-
         // Return a redirect to the show page.
         return redirect()
-            ->route('article-images.show', $selected_article_image)
+            ->route('article-images.show', $selected_article_image->id)
             ->with('success', 'You have successfully updated the selected article image.');
     }
 
@@ -204,48 +195,29 @@ class ArticleImageController extends Controller
      */
     public function destroy($id)
     {
-        // Find the required article image.
+        // Find the required model instance.
         $selected_article_image = ArticleImage::findOrFail($id);
-
-        // Find the required article.
+        // Find the related article.
         $selected_article = Article::find($selected_article_image->article_id);
-
         // Set a variable if the image is featured.
-        if ($selected_article_image->is_featured == 0) {
-            // The selected image is not the featured image.
-            $featured_status = 0;
-        } else {
-            // The selected image is the featured image.
-            $featured_status = 1;
+        $selected_article_image->is_featured == 0 ? $featured_status = 0 : $featured_status = 1;
+        // Check if the file path value is not null and file exists on the server.
+        if ($selected_article_image->image_path != null && file_exists(public_path($selected_article_image->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($selected_article_image->image_path));
         }
-
-        // Check that the image path exists in the database.
-        if ($selected_article_image->image_path != null) {
-            // Delete the selected image from storage.
-            if (file_exists(public_path($selected_article_image->image_path))) {
-                // Delete the selected image.
-                unlink(public_path($selected_article_image->image_path));
-            }
-        }
-
+        // Delete the selected model instance.
         $selected_article_image->delete();
-
-        // Set new featured image if required.
-
-        // If there are still images set the first one as the featured image.
-        if ($selected_article->article_images()->exists()) {
-            // Set a new featured image if required.
-            if ($featured_status == 1) {
-                // Find the first image in the database.
-                $new_featured_image = ArticleImage::where('article_id', $selected_article->id)
-                    ->first();
-                // Set featured status.
-                $new_featured_image->update([
-                    'is_featured' => 1
-                ]);
-            }
+        // Check for existing related images.
+        if ($selected_article->article_images()->exists() && $featured_status == 1) {
+            // First related image.
+            $new_featured_image = ArticleImage::where('article_id', $selected_article->id)
+                ->first();
+            // Set featured status.
+            $new_featured_image->update([
+                'is_featured' => 1
+            ]);
         }
-
         // Return a redirect to the show route.
         return redirect()
             ->route('articles.show', $selected_article->id)

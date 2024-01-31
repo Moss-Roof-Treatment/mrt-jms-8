@@ -69,7 +69,7 @@
             <tr>
               <th>ID</th>
               <th>Title</th>
-              <th>Owner</th>
+              <th>Used By</th>
               <th>Options</th>
             </tr>
           </thead>
@@ -77,14 +77,14 @@
             @foreach ($selected_equipment_category->equipments as $equipment)
               <tr>
                 <td>
-                  <a href="{{ route('equipment.show', $equipment->id) }}">
+                  <a href="{{ route('equipment-items.show', $equipment->id) }}">
                     {{ $equipment->id }}
                   </a>
                 </td>
                 <td>{{ $equipment->title }}</td>
                 <td>{{ $equipment->owner->getFullNameAttribute() }}</td>
                 <td class="text-center">
-                  <a href="{{ route('equipment.show', $equipment->id) }}" class="btn btn-primary btn-sm">
+                  <a href="{{ route('equipment-items.show', $equipment->id) }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
                   </a>
                 </td>

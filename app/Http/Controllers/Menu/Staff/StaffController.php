@@ -10,7 +10,8 @@ use App\Models\LoginStatus;
 use App\Models\State;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class StaffController extends Controller
 {
@@ -134,23 +135,40 @@ class StaffController extends Controller
             'kin_mobile_phone' => $request->kin_mobile_phone ?? null,
             'kin_relationship' => ucfirst($request->kin_relationship) ?? null
         ]);
-        // USER DISPLAY IMAGE
+        // DISPLAY IMAGE
+        // Check the request data for the required file.
         if ($request->hasFile('image')) {
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-image' . '.' . $image->getClientOriginalExtension(); 
+            // Set the new file name.
+            $filename = Str::slug($new_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/staffImages/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'image_path' => 'storage/images/staffImages/' . $filename
             ]);
         }
-        // USER BUSINESS LOGO
+        // LOGO
         if ($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-logo' . '.' . $logo->getClientOriginalExtension();
+            // Set the uploaded file.
+            $image = $request->file('logo');
+            // Set the new file name.
+            $filename = Str::slug($new_user->getFullNameAttribute()) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/staffLogos/' . $filename);
-            Image::make($logo)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'logo_path' => 'storage/images/staffLogos/' . $filename
@@ -311,6 +329,58 @@ class StaffController extends Controller
             $filename = Str::slug($selected_user->getFullNameAttribute()) . '-logo' . '.' . $logo->getClientOriginalExtension();
             $location = storage_path('app/public/images/staffLogos/' . $filename);
             Image::make($logo)->orientate()->resize(256, 256)->save($location);
+            // Update the selected model instance.
+            $selected_user->update([
+                'logo_path' => 'storage/images/staffLogos/' . $filename
+            ]);
+        }
+
+
+        // DISPLAY IMAGE
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_user->image_path != null && file_exists(public_path($selected_user->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_user->image_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/staffImages/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $selected_user->update([
+                'image_path' => 'storage/images/staffImages/' . $filename
+            ]);
+        }
+        // LOGO
+        // Check the request data for the required file.
+        if ($request->hasFile('logo')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_user->logo_path != null && file_exists(public_path($selected_user->logo_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_user->logo_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/staffLogos/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $selected_user->update([
                 'logo_path' => 'storage/images/staffLogos/' . $filename

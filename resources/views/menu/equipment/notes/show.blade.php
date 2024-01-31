@@ -14,7 +14,7 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a href="{{ route('equipment.show', $note->equipment_id) }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-items.show', $note->equipment_id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
         </a>
       </div> {{-- col pb-3 --}}
@@ -59,21 +59,21 @@
     </div> {{-- row row-cols-1 row-cols-sm-4 pt-3 --}}
     {{-- navigation --}}
 
-    {{-- note details table --}}
-    <h5 class="text-primary my-3"><b>Note Details</b></h5>
+    <h5 class="text-primary my-4"><b>Note Details</b></h5>
     <div class="table-responsive">
       <table class="table table-bordered table-fullwidth table-striped bg-white">
         <thead class="table-secondary">
           <tr>
-            <th>Name</th>
+            <th>Note</th>
             <th>Priority</th>
-            <th>Date</th>
+            <th>Equipment Title</th>
+            <th>Created At</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>{{ $note->sender->getFullNameAttribute() }}</td>
-            <td class="text-center">
+            <td>
               @if ($note->priority_id == null)
                 <span class="badge badge-light py-2 px-2">
                   <i class="fas fa-times mr-2" aria-hidden="true"></i>None
@@ -85,19 +85,78 @@
                 </span>
               @endif
             </td>
+            <td>{{ $note->equipment->title }}</td>
             <td>{{ date('d/m/y - h:iA', strtotime($note->created_at)) }}</td>
           </tr>
         </tbody>
       </table>
     </div> {{-- table-responsive --}}
-    {{-- note details table --}}
 
-    <h5 class="text-primary my-3"><b>Note Comment</b></h5>
+    <h5 class="text-primary my-4"><b>Inspection Comment</b></h5>
     <div class="card shadow-sm">
       <div class="card-body">
         {{ $note->text }}
       </div> {{-- card-body --}}
     </div> {{-- card --}}
+
+    <h5 class="text-primary my-4"><b>Inspection Images</b></h5>
+    @if (!$note->note_images->count())
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h5>No images have been uploaded for this inspection</h5>
+        </div> {{-- card-body --}}
+      </div> {{-- card --}}
+    @else
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="container">
+            <div class="row row-cols-2">
+              @foreach ($note->note_images as $image)
+                <div class="col-sm-2">
+                  {{-- image modal --}}
+                  {{-- modal button --}}
+                  <a type="button" data-toggle="modal" data-target="#imageModal{{$image->id}}">
+                    @if ($image->image_path == null)
+                      <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}" alt="placeholder">
+                    @else
+                      <img class="img-fluid shadow-sm" src="{{ asset($image->image_path) }}" alt="">
+                    @endif
+                  </a>
+                  {{-- modal button --}}
+                  {{-- modal --}}
+                  <div class="modal fade" id="imageModal{{$image->id}}" tabindex="-1" role="dialog" aria-labelledby="imageModal{{$image->id}}Label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Note Image</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          @if ($image->image_path == null)
+                            <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}" alt="">
+                          @else
+                            <img class="img-fluid shadow-sm" src="{{ asset($image->image_path) }}" alt="">
+                          @endif
+                        </div> {{-- modal-body --}}
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-dark" data-dismiss="modal">
+                          <i class="fas fa-times mr-2" aria-hidden="true"></i>Close
+                          </button>
+                        </div> {{-- modal-footer --}}
+                      </div> {{-- modal-content --}}
+                    </div>{{-- modal-dialog modal-dialog-centered --}}
+                  </div> {{-- modal fade --}}
+                  {{-- modal --}}
+                  {{-- image modal --}}
+                </div> {{-- col-sm-2 --}}
+              @endforeach
+            </div> {{-- row row-cols-2 --}}
+          </div> {{-- container --}}
+        </div> {{-- card-body --}}
+      </div> {{-- card --}}
+    @endif
 
   </div> {{-- container --}}
 </section> {{-- section --}}

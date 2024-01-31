@@ -8,7 +8,8 @@ use App\Models\Article;
 use App\Models\ArticleImage;
 use Auth;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Session;
 
 class BlogDropzoneController extends Controller
@@ -32,47 +33,35 @@ class BlogDropzoneController extends Controller
      */
     public function store(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Set the selected inspection id variable and save the uploaded images.
-        |--------------------------------------------------------------------------
-        */
-
+        // Find the required model instance.
         $selected_article = Article::find($request->article_id);
-        // Check if the file exists in the request data.
+        // Check the request data for the required file.
         if ($request->hasFile('file')) {
-
-            // Set an int for the photo count.
-            if ($selected_article->article_images()->exists()) {
-                $i = $selected_article->article_images()->count() + 1;
-            } else {
-                $i = 1; 
-            }
-            // Create the new image.
+            // Check if any images already exist.
+            $selected_article->article_images()->exists()
+                ? $i = $selected_article->article_images()->count() + 1
+                : $i = 1;
+            // Set the uploaded file.
             $image = $request->file('file');
-
-            // New model instance.
-            $new_article_image = new ArticleImage;
-
-            // Assign data to the image.
-            $new_article_image->article_id = $selected_article->id;
-            $new_article_image->staff_id = Auth::id();
-
-            // Assign featured status if the current image count variable equals 1.
-            if ($i == 1) {
-                $new_article_image->is_featured = 1;
-            }
-
-            // Use the integer for the name without change.
+            // Set the new file name.
             $filename = Str::slug($selected_article->title) . '-image-' . $i . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $new_article_image->image_path = 'storage/images/content/blogs/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/content/blogs/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
-
-            // Save The new job image.
-            $new_article_image->save();
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+            // Create the new model instance.
+            ArticleImage::create([
+                'article_id' => $selected_article->id,
+                'image_path' => 'storage/images/content/blogs/' . $filename,
+                'staff_id' => Auth::id(),
+                'is_featured' => $i == 1 ? 1 : 0
+            ]);
         }
-
+        // Flash success message to the session.
         Session::flash('success', 'You have successfully uploaded the selected blog image(s).');
     }
 }

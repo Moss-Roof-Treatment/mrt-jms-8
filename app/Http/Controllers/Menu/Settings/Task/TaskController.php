@@ -11,7 +11,8 @@ use App\Models\MaterialType;
 use App\Models\Task;
 use App\Models\TaskType;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class TaskController extends Controller
 {
@@ -100,29 +101,36 @@ class TaskController extends Controller
                 'price' => 'required|numeric',
             ]);
         }
-        // Create the new model instance.
-        $new_task = new Task;
-        $new_task->task_type_id = $request->task_type_id;
-        $new_task->building_style_id = $request->building_style_id;
-        $new_task->building_type_id = $request->building_type_id;
-        $new_task->dimension_id = $request->dimension_id;
-        $new_task->material_type_id = $request->material_type_id;
-        $new_task->title = $request->title;
-        $new_task->procedure = $request->procedure;
-        $new_task->description = $request->description;
-        $new_task->price = intval(preg_replace('/[$.,]/', '', $request->price)); // Strip all dollar signs, commas and periods, then set to integer.
-
-        // Image Upload.
-        if ($request->hasFile('image')){
-            $file = $request->file('image');
-            $filename = Str::slug($new_task->title) . '_task' . '.' . $file->getClientOriginalExtension(); 
-            $new_task->image_path = 'storage/images/tasks/' . $filename;
-            $location = storage_path('app/public/images/tasks/' . $filename);
-            Image::make($file)->orientate()->resize(256, 256)->save($location);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/documents/quoteDocuments/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
         }
-
-        // Save the model instance.
-        $new_task->save();
+        // Create the new model instance.
+        $new_task = Task::create([
+            'task_type_id' => $request->task_type_id,
+            'building_style_id' => $request->building_style_id,
+            'building_type_id' => $request->building_type_id,
+            'dimension_id' => $request->dimension_id,
+            'material_type_id' => $request->material_type_id,
+            'title' => $request->title,
+            'procedure' => $request->procedure,
+            'description' => $request->description,
+            'price' => intval(preg_replace('/[$.,]/', '', $request->price)), // Strip all dollar signs, commas and periods, then set to integer.
+            'image_path' => $image_storage_location ?? null,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('task-settings.show', $new_task->id)
@@ -187,10 +195,8 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         // Validate The Request Data.
-
         // Check if the selected task type equals 1. - Areas to be treated.
         if ($request->task_type_id == 1) {
-
             // The selected task type is 1. - Areas to be treated.
             $request->validate([
                 'title' => 'required|string|min:5|max:100|unique:tasks,title,'. $id,
@@ -203,9 +209,7 @@ class TaskController extends Controller
                 'description' => 'required|string|min:10|max:600',
                 'price' => 'required|numeric',
             ]);
-
         } else {
-
             // The selected task type is not 1. - additions - other works.
             $request->validate([
                 'title' => 'required|string|min:5|max:100|unique:tasks,title,'. $id,
@@ -216,41 +220,47 @@ class TaskController extends Controller
                 'price' => 'required|numeric',
             ]);
         }
-
-        // Update the selected model instance.
+        // Find the selected model instance.
         $selected_task = Task::findOrFail($id);
-        $selected_task->task_type_id = $request->task_type_id;
-        $selected_task->building_style_id = $request->building_style_id;
-        $selected_task->building_type_id = $request->building_type_id;
-        $selected_task->dimension_id = $request->dimension_id;
-        $selected_task->material_type_id = $request->material_type_id;
-        $selected_task->title = $request->title;
-        $selected_task->procedure = $request->procedure; 
-        $selected_task->description = $request->description; 
-        $selected_task->price = intval(preg_replace('/[$.,]/', '', $request->price)); // Strip all dollar signs, commas and periods, then set to integer.
-        $selected_task->is_quote_visible = $request->is_quote_visible;
-        $selected_task->is_selectable = $request->is_selectable;
-        $selected_task->uses_product = $request->uses_product;
-
-        // Image Upload.
-        if ($request->hasFile('image')){
-            if ($selected_task->image_path != null) {
-                if (file_exists(public_path($selected_task->image_path))) {
-                    unlink(public_path($selected_task->image_path));
-                }
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_task->image_path != null && file_exists(public_path($selected_task->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_task->image_path));
             }
-            $file = $request->file('image');
-            $filename = Str::slug($selected_task->title) . '_task' . '.' . $file->getClientOriginalExtension();
-            $selected_task->image_path = 'storage/images/tasks/' . $filename;
-            $location = storage_path('app/public/images/tasks/' . $filename);
-            Image::make($file)->orientate()->resize(256, 256)->save($location);
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/images/tasks/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
         }
-
-        // Save the model instance.
-        $selected_task->save();
-
+        // Update the selected model instance.
+        $selected_task->update([
+            'task_type_id' => $request->task_type_id,
+            'building_style_id' => $request->building_style_id,
+            'building_type_id' => $request->building_type_id,
+            'dimension_id' => $request->dimension_id,
+            'material_type_id' => $request->material_type_id,
+            'title' => $request->title,
+            'procedure' => $request->procedure, 
+            'description' => $request->description, 
+            'price' => intval(preg_replace('/[$.,]/', '', $request->price)), // Strip all dollar signs, commas and periods, then set to integer.
+            'is_quote_visible' => $request->is_quote_visible,
+            'is_selectable' => $request->is_selectable,
+            'uses_product' => $request->uses_product,
+            'image_path' => $image_storage_location ?? $selected_task->image_path,
+        ]);
         // Return redirect to the show page.
-
         return redirect()
             ->route('task-settings.show', $selected_task->id)
             ->with('success', 'You have successfully edited the selected task.');
@@ -266,11 +276,10 @@ class TaskController extends Controller
     {
         // Find the required model instance.
         $selected_task = Task::findOrFail($id);
-        // Delete the image if required.
-        if ($selected_task->image_path != null) {
-            if (file_exists(public_path($selected_task->image_path))) {
-                unlink(public_path($selected_task->image_path));
-            }
+        // Check if the file path value is not null and file exists on the server.
+        if ($selected_task->image_path != null && file_exists(public_path($selected_task->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($selected_task->image_path));
         }
         // Delete the selected model instance.
         $selected_task->delete();

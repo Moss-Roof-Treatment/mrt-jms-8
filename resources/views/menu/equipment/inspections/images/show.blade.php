@@ -14,12 +14,12 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a href="{{ route('equipment.index') }}" class="btn btn-dark btn-block">
+        <a href="{{ route('equipment-items.index') }}" class="btn btn-dark btn-block">
           <i class="fas fa-bars mr-2" aria-hidden="true"></i>Equipment Menu
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment.show', $selected_inspection_image->equipment_inspection->equipment->id) }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-items.show', $selected_inspection_image->equipment_inspection->equipment->id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
         </a>
       </div> {{-- col pb-3 --}}

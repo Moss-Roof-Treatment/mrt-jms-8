@@ -10,7 +10,8 @@ use App\Models\LoginStatus;
 use App\Models\State;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ContractorController extends Controller
 {
@@ -99,7 +100,7 @@ class ContractorController extends Controller
         $new_user = User::create([
             // MODEL RELATIONSHIPS
             'account_class_id' => 2, // Tradesperson.
-            'account_role_id' => 3, // Tradesperson.
+            'account_role_id' => 4, // Contractor.
             'referral_id' => 7, // Not Registered.
             // USER SECTION
             'username' => $request->username ?? $request->email,
@@ -134,23 +135,40 @@ class ContractorController extends Controller
             'kin_mobile_phone' => $request->kin_mobile_phone ?? null,
             'kin_relationship' => ucfirst($request->kin_relationship) ?? null
         ]);
-        // USER DISPLAY IMAGE
+        // DISPLAY IMAGE
+        // Check the request data for the required file.
         if ($request->hasFile('image')) {
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-image' . '.' . $image->getClientOriginalExtension(); 
+            // Set the new file name.
+            $filename = Str::slug($new_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/contractorImages/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'image_path' => 'storage/images/contractorImages/' . $filename
             ]);
         }
-        // USER BUSINESS LOGO
+        // LOGO
         if ($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-logo' . '.' . $logo->getClientOriginalExtension();
+            // Set the uploaded file.
+            $image = $request->file('logo');
+            // Set the new file name.
+            $filename = Str::slug($new_user->getFullNameAttribute()) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/contractorLogos/' . $filename);
-            Image::make($logo)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'logo_path' => 'storage/images/contractorLogos/' . $filename
@@ -282,33 +300,51 @@ class ContractorController extends Controller
             'kin_mobile_phone' => $request->kin_mobile_phone,
             'kin_relationship' => ucfirst($request->kin_relationship)
         ]);
-        // USER DISPLAY IMAGE
+        // DISPLAY IMAGE
+        // Check the request data for the required file.
         if ($request->hasFile('image')) {
-            if ($selected_user->image_path != null) {
-                if (file_exists(public_path($selected_user->image_path))) {
-                    unlink(public_path($selected_user->image_path));
-                }
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_user->image_path != null && file_exists(public_path($selected_user->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_user->image_path));
             }
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image' . '.' . $image->getClientOriginalExtension(); 
+            // Set the new file name.
+            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/contractorImages/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $selected_user->update([
                 'image_path' => 'storage/images/contractorImages/' . $filename
             ]);
         }
-        // USER BUSINESS LOGO
+        // LOGO
+        // Check the request data for the required file.
         if ($request->hasFile('logo')) {
-            if ($selected_user->logo_path != null) {
-                if (file_exists(public_path($selected_user->logo_path))) {
-                    unlink(public_path($selected_user->logo_path));
-                }
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_user->logo_path != null && file_exists(public_path($selected_user->logo_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_user->logo_path));
             }
-            $logo = $request->file('logo');
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-logo' . '.' . $logo->getClientOriginalExtension();
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/contractorLogos/' . $filename);
-            Image::make($logo)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $selected_user->update([
                 'logo_path' => 'storage/images/contractorLogos/' . $filename

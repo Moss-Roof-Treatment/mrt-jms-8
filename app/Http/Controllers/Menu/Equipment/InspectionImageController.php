@@ -7,7 +7,9 @@ use App\Models\EquipmentInspection;
 use App\Models\EquipmentInspectionImage;
 use Auth;
 use Illuminate\Http\Request;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Str;
 
 class InspectionImageController extends Controller
 {
@@ -57,12 +59,18 @@ class InspectionImageController extends Controller
         if ($request->hasFile('image')) {
             // Loop through each image in the request.
             foreach($request->file('image') as $image){
-                // Create the new image.
-                $filename = $selected_inspection->equipment_id . '-' . $selected_inspection->id . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                // Set the new file name.
+                $filename = Str::slug($selected_inspection->equipment_id . ' ' . $selected_inspection->id . ' ' . uniqid()) . '.' . $image->getClientOriginalExtension();
+                // Set the new file location.
                 $location = storage_path('app/public/images/equipment/inspections/' . $filename);
-                Image::make($image)->orientate()->resize(800, null, function ($constraint) {
+                // Create new manager instance with desired driver.
+                $manager = new ImageManager(new Driver());
+                // Read image from filesystem
+                $image = $manager->read($image);
+                // Resize the image to a set width with constrain aspect ratio (auto height) then encode jpeg data.
+                $image->resize(800, null, function ($constraint) {
                     $constraint->aspectRatio();
-                })->save($location);
+                })->toJpeg(80)->save($location);
                 // Create the new model instance.
                 $new_inspection_image = EquipmentInspectionImage::create([
                     'equipment_inspection_id' => $selected_inspection->id,

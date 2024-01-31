@@ -30,6 +30,6 @@ class DownloadQuoteDocumentController extends Controller
         // Find the required model instance.
         $selected_quote_document = QuoteDocument::findOrFail($id);
         // Return the file download.
-        return response()->download($selected_quote_document->document_path);
+        return response()->download(public_path($selected_quote_document->document_path));
     }
 }

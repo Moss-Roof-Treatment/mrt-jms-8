@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Equipment;
 use App\Models\Note;
+use App\Models\NoteImage;
 use App\Models\Priority;
 use Auth;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class NoteController extends Controller
 {
@@ -65,9 +69,31 @@ class NoteController extends Controller
             'jms_seen_at' => in_array(auth()->user()->account_role_id, [1,2]) ? now() : null,
             'jms_acknowledged_at' => in_array(auth()->user()->account_role_id, [1,2]) ? now() : null,
         ]);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $storage_location = 'storage/images/equipment/notes/' . $filename;
+            // Set the new file location.
+            $location = public_path($storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+            // Create the new model instance.
+            NoteImage::create([
+                'note_id' => $new_note->id,
+                'image_path' => $storage_location,
+            ]);
+        }
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', $new_note->equipment_id)
+            ->route('equipment-items.show', $new_note->equipment_id)
             ->with('success', 'You have successfully created a new equipment note.');
     }
 
@@ -80,7 +106,8 @@ class NoteController extends Controller
     public function show($id)
     {
         // Find the required model instance.
-        $note = Note::findOrFail($id);
+        $note = Note::with('note_images')
+            ->findOrFail($id);
         // Return the show view.
         return view('menu.equipment.notes.show')
             ->with('note', $note);
@@ -145,13 +172,15 @@ class NoteController extends Controller
         $selected_note = Note::findOrFail($id);
         // Selected Equipment ID.
         $selected_equipment_id = $selected_note->equipment_id;
-        // Check if the images relationship is not null.
+        // Check if the selected model instance has any image relationships.
         if ($selected_note->images != null) {
-            // Loop through each image relationship.
+            // Loop through each image.
             foreach($selected_note->images as $image) {
-                // Delete the file from storage.
-                unlink(public_path($image->image_path));
-                // Delete the model relationship instance.
+                if($image->image_path && file_exists(public_path($image->image_path))) {
+                    // Delete the image from storage.
+                    unlink(public_path($image->image_path));
+                }
+                // Delete the image model instance.
                 $image->delete();
             }
         }
@@ -159,7 +188,7 @@ class NoteController extends Controller
         $selected_note->delete();
         // Return a redirect to the show route.
         return redirect()
-            ->route('equipment.show', $selected_equipment_id)
+            ->route('equipment-items.show', $selected_equipment_id)
             ->with('success', 'You have successfully deleted the selected equipment note.');
     }
 }

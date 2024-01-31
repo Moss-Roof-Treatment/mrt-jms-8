@@ -24,6 +24,7 @@ class EquipmentGroup extends Model
     protected $fillable = [
         'title',
         'description',
+        'image_path',
         'is_editable',
         'is_delible',
     ];
@@ -34,6 +35,27 @@ class EquipmentGroup extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Model Functions
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get image or placeholder.
+     */
+    public function get_image() 
+    {
+        // Check if the file exists on the server.
+        if ($this->image_path != null && file_exists(public_path($this->image_path))) {
+            $value = $this->image_path;
+        } else {
+            $value = "storage/images/placeholders/tools-256x256.jpg";
+        }
+        // Return the value.
+        return $value;
+    }
 
     /*
     |--------------------------------------------------------------------------

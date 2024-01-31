@@ -26,16 +26,6 @@ class MenuController extends Controller
      */
     public function index()
     {
-        //
-        // INVOICE FIXES.
-        //
-        // $all_invoices = Invoice::all();
-        // // Loop through each invoice.
-        // foreach($all_invoices as $invoice) {
-        //     // Calculate the invoice feilds.
-        //     $invoice->calculateInvoiceTotals();
-        // }
-
         // Get the systems variables.
         $selected_system = System::firstOrFail(); // Moss Roof Treatment.
         // Return the index view.

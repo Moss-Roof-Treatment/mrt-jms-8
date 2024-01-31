@@ -14,7 +14,7 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a href="{{ route('equipment.show', $equipment->id) }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-items.show', $equipment->id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
         </a>
       </div> {{-- col pb-3 --}}
@@ -143,7 +143,7 @@
               </td>
             </tr>
             <tr>
-              <th>Owner</th>
+              <th>Used By</th>
               <td>{{ $equipment->owner->getFullNameAttribute() }}</td>
             </tr>
           </tbody>
@@ -154,7 +154,7 @@
 
         <h5 class="text-primary my-4"><b>Create New Inpection</b></h5>
 
-        <form action="{{ route('equipment-inspections.store') }}" method="POST">
+        <form action="{{ route('equipment-inspections.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
 
           <input type="hidden" name="equipment_id" value="{{ $equipment->id }}">
@@ -168,7 +168,7 @@
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
@@ -180,7 +180,7 @@
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
@@ -192,7 +192,7 @@
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
@@ -204,7 +204,7 @@
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
@@ -216,7 +216,7 @@
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
@@ -228,7 +228,22 @@
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="image" class="col-md-4 col-form-label text-md-right">Image</label>
+            <div class="col-md-8">
+              <div class="custom-file">
+                  <label class="custom-file-label" for="image" id="image_name">Please select an image to upload</label>
+                  <input type="file" class="custom-file-input" name="image" id="image" aria-describedby="image">
+              </div> {{-- custom-file --}}
+              @error('image')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row mb-0">
@@ -256,7 +271,7 @@
                     </div>
                     <div class="modal-body">
                       <p class="text-center">Are you sure that you would like to reset this form?</p>
-                      <a href="{{ route('equipment.show', $equipment->id) }}" class="btn btn-dark btn-block">
+                      <a href="{{ route('equipment-items.show', $equipment->id) }}" class="btn btn-dark btn-block">
                         <i class="fas fa-undo-alt mr-2" aria-hidden="true"></i>Reset
                       </a>
                     </div> {{-- modal-body --}}
@@ -266,11 +281,11 @@
               {{-- modal --}}
               {{-- reset modal --}}
               {{-- cancel button --}}
-              <a href="{{ route('equipment.show', $equipment->id) }}" class="btn btn-dark">
+              <a href="{{ route('equipment-items.show', $equipment->id) }}" class="btn btn-dark">
                 <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
               </a>
               {{-- cancel button --}}
-            </div> {{-- col-md-9 --}}
+            </div> {{-- col-md-8 offset-md-4 --}}
           </div> {{-- form-group row --}}
 
         </form>
@@ -281,3 +296,16 @@
   </div> {{-- container --}}
 </section> {{-- section --}}
 @endsection
+
+@push('js')
+<script>
+  // Display the filename of the selected file to the user in the view from the upload form.
+  var image = document.getElementById("image");
+  image.onchange = function(){
+    if (image.files.length > 0)
+    {
+      document.getElementById('image_name').innerHTML = image.files[0].name;
+    }
+  };
+</script>
+@endpush

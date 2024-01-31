@@ -14,28 +14,28 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a href="{{ route('equipment.index') }}" class="btn btn-dark btn-block">
+        <a href="{{ route('equipment-items.index') }}" class="btn btn-dark btn-block">
           <i class="fas fa-bars mr-2" aria-hidden="true"></i>Equipment Menu
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment.edit', $equipment->id) }}" class="btn btn-primary btn-block">
+        <a href="{{ route('equipment-items.edit', $equipment->id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-edit mr-2" aria-hidden="true"></i>Edit
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
         <a href="{{ route('equipment-inspections.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-primary btn-block">
-          <i class="fas fa-clipboard-check mr-2" aria-hidden="true"></i>Inspections
+          <i class="fas fa-clipboard-check mr-2" aria-hidden="true"></i>Create New Inspection
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
         <a href="{{ route('equipment-notes.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-primary btn-block">
-          <i class="fas fa-sticky-note mr-2" aria-hidden="true"></i>Notes
+          <i class="fas fa-sticky-note mr-2" aria-hidden="true"></i>Create New Note
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
         <a href="{{ route('equipment-documents.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-primary btn-block">
-          <i class="fas fa-file-alt mr-2" aria-hidden="true"></i>Documents
+          <i class="fas fa-file-alt mr-2" aria-hidden="true"></i>Create New Document
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
@@ -57,7 +57,7 @@
               </div>
               <div class="modal-body">
                 <p class="text-center">Are you sure that you would like to delete this item?</p>
-                <form method="POST" action="{{ route('equipment.destroy', $equipment->id) }}">
+                <form method="POST" action="{{ route('equipment-items.destroy', $equipment->id) }}">
                   @method('DELETE')
                   @csrf
                   <button type="submit" class="btn btn-danger btn-block">
@@ -185,7 +185,7 @@
                 </td>
               </tr>
               <tr>
-                <th>Owner</th>
+                <th>Used By</th>
                 <td>
                   @if ($equipment->owner_id == null)
                     <span class="badge badge-light py-2 px-2">

@@ -603,7 +603,9 @@ Route::resource('/equipment/equipment-inspection-dropzone', App\Http\Controllers
 // Equipment Notes Resource Route
 Route::resource('/equipment/equipment-notes', App\Http\Controllers\Menu\Equipment\NoteController::class)->except('index');
 // Equipment Menu Resource Route
-Route::resource('/equipment', App\Http\Controllers\Menu\Equipment\EquipmentController::class);
+Route::resource('/equipment-items', App\Http\Controllers\Menu\Equipment\EquipmentController::class);
+// Equipment Menu Resource Route
+Route::view('/equipment', 'menu.equipment.index')->name('equipment.index')->middleware('auth','isStaff');
 
 /*
 |--------------------------------------------------------------------------
@@ -740,7 +742,7 @@ Route::resource('/content/article-image-dropzone', App\Http\Controllers\Menu\Con
 Route::resource('/content/article-images', App\Http\Controllers\Menu\Content\ArticleImageController::class);
 Route::resource('/content/articles', App\Http\Controllers\Menu\Content\ArticleController::class);
 // Content Menu Index Route
-Route::resource('/content', App\Http\Controllers\Menu\Content\ContentController::class)->only('index');
+Route::view('/content', 'menu.content.index')->name('content.index')->middleware('auth','isStaff');
 
 /*
 |--------------------------------------------------------------------------

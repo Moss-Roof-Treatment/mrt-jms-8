@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\TaskType;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class TaskTypeController extends Controller
 {
@@ -60,22 +61,29 @@ class TaskTypeController extends Controller
             'title' => 'required|string',
             'description' => 'required|string',
         ]);
-
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/images/taskTypes/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
+        }
         // Create the new model instance.
-        $new_task_type = new TaskType;
-        $new_task_type->title = $request->title;
-        $new_task_type->description = $request->description;
-
-        // Image Upload.
-        $file = $request->file('image');
-        $filename = Str::slug($new_task_type->title) . '_task_type' . '.' . $file->getClientOriginalExtension(); 
-        $new_task_type->image_path = 'storage/images/taskTypes/' . $filename;
-        $location = storage_path('app/public/images/taskTypes/' . $filename);
-        Image::make($file)->orientate()->resize(256, 256)->save($location);
-
-        // Save the model instance.
-        $new_task_type->save();
-
+        $new_task_type = TaskType::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'image_path' => $image_storage_location ?? null,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('task-type-settings.show', $new_task_type->id)
@@ -127,34 +135,41 @@ class TaskTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Validate The Request Data.
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'required|string',
+        ]);
         // Find the required model instance.
         $selected_task_type = TaskType::findOrFail($id);
-
-        // Find the required model instance.
-        $selected_task_type->title = $request->title;
-        $selected_task_type->description = $request->description;
-
-        // Image Upload.
-        if ($request->hasFile('image')){
-
-            if ($selected_task_type->image_path != null) {
-
-                if (file_exists(public_path($selected_task_type->image_path))) {
-
-                    unlink(public_path($selected_task_type->image_path));
-                }
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_task_type->image_path != null && file_exists(public_path($selected_task_type->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_task_type->image_path));
             }
-
-            $file = $request->file('image');
-            $filename = Str::slug($selected_task_type->title) . '_task_type' . '.' . $file->getClientOriginalExtension();
-            $selected_task_type->image_path = 'storage/images/taskTypes/' . $filename;
-            $location = storage_path('app/public/images/taskTypes/' . $filename);
-            Image::make($file)->orientate()->resize(256, 256)->save($location);
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $image_storage_location = 'storage/images/taskTypes/' . $filename;
+            // Set the new file location.
+            $location = public_path($image_storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
         }
-
-        // Save the model instance.
-        $selected_task_type->save();
-
+        // Update the selected model instance.
+        $selected_task_type->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'image_path' => $image_storage_location ?? $selected_task_type->image_path,
+        ]);
         // Return the edit view.
         return redirect()
             ->route('task-type-settings.show', $selected_task_type->id)
@@ -171,11 +186,10 @@ class TaskTypeController extends Controller
     {
         // Find the required model instance.
         $selected_task_type = TaskType::findOrFail($id);
-        // Delete the image if required.
-        if ($selected_task_type->image_path != null) {
-            if (file_exists(public_path($selected_task_type->image_path))) {
-                unlink(public_path($selected_task_type->image_path));
-            }
+        // Check if the file path value is not null and file exists on the server.
+        if ($selected_task_type->image_path != null && file_exists(public_path($selected_task_type->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($selected_task_type->image_path));
         }
         // Delete the selected model instance.
         $selected_task_type->tasks()->delete();

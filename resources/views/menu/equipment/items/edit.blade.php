@@ -14,7 +14,7 @@
     {{-- navigation --}}
     <div class="row row-cols-1 row-cols-sm-4 pt-3">
       <div class="col pb-3">
-        <a class="btn btn-primary btn-block" href="{{ route('equipment.show', $selected_equipment->id) }}">
+        <a class="btn btn-primary btn-block" href="{{ route('equipment-items.show', $selected_equipment->id) }}">
           <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment
         </a>
       </div> {{-- col pb-3 --}}
@@ -26,7 +26,7 @@
 
         <h5 class="text-primary my-3"><b>Edit Selected Equipment</b></h5>
 
-        <form action="{{ route('equipment.update', $selected_equipment->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('equipment-items.update', $selected_equipment->id) }}" method="POST" enctype="multipart/form-data">
           @method('PATCH')
           @csrf
 
@@ -129,7 +129,7 @@
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
-            <label for="owner_id" class="col-md-3 col-form-label text-md-right">Owner</label>
+            <label for="owner_id" class="col-md-3 col-form-label text-md-right">Used By</label>
             <div class="col-md-8">
               <select name="owner_id" id="owner_id" class="custom-select @error('owner_id') is-invalid @enderror mb-2">
                 @if (old('owner_id'))
@@ -208,7 +208,7 @@
                     </div>
                     <div class="modal-body">
                       <p class="text-center">Are you sure that you would like to reset this form?</p>
-                      <a href="{{ route('equipment.edit', $selected_equipment->id) }}" class="btn btn-dark btn-block">
+                      <a href="{{ route('equipment-items.edit', $selected_equipment->id) }}" class="btn btn-dark btn-block">
                         <i class="fas fa-undo-alt mr-2" aria-hidden="true"></i>Reset
                       </a>
                     </div> {{-- modal-body --}}
@@ -217,7 +217,7 @@
               </div> {{-- modal fade --}}
               {{-- modal --}}
               {{-- reset modal --}}
-              <a href="{{ route('equipment.show', $selected_equipment->id) }}" class="btn btn-dark">
+              <a href="{{ route('equipment-items.show', $selected_equipment->id) }}" class="btn btn-dark">
                 <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
               </a>
             </div>

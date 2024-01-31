@@ -173,10 +173,8 @@ class BlogController extends Controller
             'completed_date' => 'required',
             'published_date' => 'required',
         ]);
-
         // Find and update the model instance.
         $selected_article = Article::findOrFail($id);
-
         // Update the selected model instance.
         $selected_article->update([
             'title' => ucwords($request->title),
@@ -189,14 +187,10 @@ class BlogController extends Controller
             'completed_date' => $request->completed_date,
             'published_date' => $request->published_date
         ]);
-
         // Update the tags relationship instances.
-        if (isset($request->tags)) {
-            $selected_article->article_tags()->sync($request->tags);
-        } else {
-            $selected_article->article_tags()->sync(array());
-        }
-
+        isset($request->tags)
+            ? $selected_article->article_tags()->sync($request->tags)
+            : $selected_article->article_tags()->sync(array());
         // Return a redirect to the show route.
         return redirect()
             ->route('blogs.show', $id)
@@ -213,29 +207,19 @@ class BlogController extends Controller
     {
         // Find the required model instance.
         $selected_article = Article::findOrFail($id);
-
-        // Delete the required images from the server.
-
-        // Check if the selected model instance has and relationships
+        // Delete related images.
         if ($selected_article->article_images()->exists()) {
-            // Loop through each image.
+            // Loop through each related image.
             foreach($selected_article->article_images as $image) {
-                // Check if the selected model instance image path is not empty.
-                if ($image->image_path != null) {
-                    // Check if the file exists on the server.
-                    if (file_exists(public_path($image->image_path))) {
-                        // Delete the selected image.
-                        unlink(public_path($image->image_path));
-                    }
+                // Check if the file path value is not null and file exists on the server.
+                if ($image->image_path != null && file_exists(public_path($image->image_path))) {
+                    // Delete the file from the server.
+                    unlink(public_path($image->image_path));
                 }
-                // Delete the relationship model instance.
-                $image->delete();
             }
         }
-
         // Delete the selected model instance.
         $selected_article->delete();
-
         // Return a redirect to the index route.
         return redirect()
             ->route('blogs.index')

@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ManualTestimonialController extends Controller
 {
@@ -70,22 +71,30 @@ class ManualTestimonialController extends Controller
             'text' => 'required|string|min:10|max:500',
             'image' => 'required|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $storage_location = 'storage/images/testimonials/' . $filename;
+            // Set the new file location.
+            $location = public_path($storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+        }
         // Create the new model instance.
-        $new_testimonial = new Testimonial;
-        $new_testimonial->user_id = $request->staff_id;
-        $new_testimonial->name = $request->name;
-        $new_testimonial->text = $request->text;
-
-        // Create the new image.
-        $image = $request->file('image');
-        $filename = Str::slug($new_testimonial->id . '-' . $new_testimonial->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
-        $new_testimonial->image_path = 'storage/images/testimonials/' . $filename;      
-        $location = public_path($new_testimonial->image_path);
-        Image::make($image)->orientate()->resize(1280, 720)->save($location);
-
-        $new_testimonial->save();
-
+        Testimonial::create([
+            'user_id' => $request->staff_id,
+            'name' => $request->name,
+            'text' => $request->text,
+            'image_path' => $storage_location ?? null,
+        ]);
         // Return a redirect to the index route.
         return redirect()
             ->route('manual-testimonials-settings.index')
@@ -145,33 +154,40 @@ class ManualTestimonialController extends Controller
             'staff_id' => 'required',
             'name' => 'required|string',
             'text' => 'required|string|min:10|max:500',
-            'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
+            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
         // Find the required model instance.
         $selected_testimonial = Testimonial::findOrFail($id);
-
-        // Update the selected model instance.
-        $selected_testimonial->user_id = $request->staff_id;
-        $selected_testimonial->name = $request->name;
-        $selected_testimonial->text = $request->text;
-        $selected_testimonial->is_visible = $request->is_visible;
-
+        // Check if a new image has been uploaded.
         if ($request->hasFile('image')){
-            if ($selected_testimonial->image_path != null) {
-                if (file_exists(public_path($selected_testimonial->image_path))) {
-                    unlink(public_path($selected_testimonial->image_path));
-                }
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_testimonial->image_path != null && file_exists(public_path($selected_testimonial->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_testimonial->image_path));
             }
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($selected_testimonial->id . '-' . $selected_testimonial->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $selected_testimonial->image_path = 'storage/images/testimonials/' . $filename;      
-            $location = public_path($selected_testimonial->image_path);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new strorage path for the database.
+            $storage_location = 'storage/images/testimonials/' . $filename;
+            // Set the new file location.
+            $location = public_path($storage_location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+
         }
-
-        $selected_testimonial->save();
-
+        // Update the selected model instance.
+        $selected_testimonial->update([
+            'user_id' => $request->staff_id,
+            'name' => $request->name,
+            'text' => $request->text,
+            'is_visible' => $request->is_visible,
+        ]);
         // Return a redirect to the index route.
         return redirect()
             ->route('manual-testimonials-settings.show', $selected_testimonial->id)

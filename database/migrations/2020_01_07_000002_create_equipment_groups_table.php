@@ -21,6 +21,9 @@ class CreateEquipmentGroupsTable extends Migration
             $table->string('title')->unique();
             $table->text('description')->nullable();
 
+            // Images
+            $table->string('image_path')->nullable();
+
             // Options.
             $table->boolean('is_selectable')->default(1); // 0 = Cannot be selected, 1 = Can be selected.
             $table->boolean('is_editable')->default(0); // 0 = Cannot be edited, 1 = Can be edited.

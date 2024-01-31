@@ -9,7 +9,8 @@ use App\Models\BuildingStylePostType;
 use App\Models\MaterialType;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class BuildingStylePostController extends Controller
 {
@@ -85,23 +86,44 @@ class BuildingStylePostController extends Controller
             'completed_date' => Carbon::parse($request->completed_date)
         ]);
         // Create the new image if required.
-        if (isset($request->roof_outline_image_path)) {
+        if ($request->hasFile('roof_outline_image_path')) {
+            // Set the uploaded file.
             $image = $request->file('roof_outline_image_path');
+            // Set the new file name.
             $filename = Str::slug($request->title) . 'roof-image' . '.' . $image->getClientOriginalExtension();
-            $new_building_style->roof_outline_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new path variable.
+            $new_roof_outline_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/buildingStylePosts/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
         }
         // Create the new image if required.
-        if (isset($request->building_image_path)) {
+        if ($request->hasFile('building_image_path')) {
+            // Set the uploaded file.
             $image = $request->file('building_image_path');
+            // Set the new file name.
             $filename = Str::slug($request->title) . 'building-image' . '.' . $image->getClientOriginalExtension();
-            $new_building_style->building_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new path variable.
+            $new_building_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/buildingStylePosts/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
         }
         // Save and update the new model instance.
-        $new_building_style->save();
+        $new_building_style->update([
+            'roof_outline_image_path' => isset($new_roof_outline_image_path) ? $new_roof_outline_image_path : $new_building_style->roof_outline_image_path,
+            'building_image_path' => isset($new_building_image_path) ? $new_building_image_path : $new_building_style->building_image_path,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('building-style-post-settings.show', $new_building_style->id)
@@ -175,47 +197,62 @@ class BuildingStylePostController extends Controller
         // Find the required model instance.
         $selected_building_style_post = BuildingStylePost::findOrFail($id);
         // Update the selected model instance.
-        $selected_building_style_post->building_style_post_type_id = $request->building_style_post_type_id;
-        $selected_building_style_post->material_type_id = $request->material_type_id;
-        $selected_building_style_post->title = ucwords($request->title);
-        $selected_building_style_post->description = ucfirst($request->description);
-        $selected_building_style_post->completed_date = Carbon::parse($request->completed_date);
-        // Create the new image if required.
-        if (isset($request->roof_outline_image_path)) {
-            // Check if the selected model instance image path is not empty.
-            if ($selected_building_style_post->roof_outline_image_path != null) {
-                // Check if the file exists on the server.
-                if (file_exists(public_path($selected_building_style_post->roof_outline_image_path))) {
-                    // Delete the selected image.
-                    unlink(public_path($selected_building_style_post->roof_outline_image_path));
-                }
+        $selected_building_style_post->update([
+            'building_style_post_type_id' => $request->building_style_post_type_id,
+            'material_type_id' => $request->material_type_id,
+            'title' => ucwords($request->title),
+            'description' => ucfirst($request->description),
+            'completed_date' => Carbon::parse($request->completed_date),
+        ]);
+        // Check the request data for the required file.
+        if ($request->hasFile('roof_outline_image_path')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_building_style_post->roof_outline_image_path != null && file_exists(public_path($selected_building_style_post->roof_outline_image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_building_style_post->roof_outline_image_path));
             }
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('roof_outline_image_path');
+            // Set the new file name.
             $filename = Str::slug($request->title) . 'roof-image' . '.' . $image->getClientOriginalExtension();
-            $selected_building_style_post->roof_outline_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new path variable.
+            $new_roof_outline_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/buildingStylePosts/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
         }
-        // Create the new image if required.
-        if (isset($request->building_image_path)) {
-            // Check if the selected model instance image path is not empty.
-            if ($selected_building_style_post->building_image_path != null) {
-                // Check if the file exists on the server.
-                if (file_exists(public_path($selected_building_style_post->building_image_path))) {
-                    // Delete the selected image.
-                    unlink(public_path($selected_building_style_post->building_image_path));
-                }
+        // Check the request data for the required file.
+        if ($request->hasFile('building_image_path')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_building_style_post->building_image_path != null && file_exists(public_path($selected_building_style_post->building_image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_building_style_post->building_image_path));
             }
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('building_image_path');
+            // Set the new file name.
             $filename = Str::slug($request->title) . 'building-image' . '.' . $image->getClientOriginalExtension();
-            $selected_building_style_post->building_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new path variable.
+            $new_building_image_path = 'storage/images/buildingStylePosts/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/buildingStylePosts/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
         }
         // Save and update the new model instance.
-        $selected_building_style_post->save();
+        $selected_building_style_post->update([
+            'roof_outline_image_path' => isset($new_roof_outline_image_path) ? $new_roof_outline_image_path : $selected_building_style_post->roof_outline_image_path,
+            'building_image_path' => isset($new_building_image_path) ? $new_building_image_path : $selected_building_style_post->building_image_path,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('building-style-post-settings.show', $selected_building_style_post->id)

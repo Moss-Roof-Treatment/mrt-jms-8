@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Postcode;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class IncomingCallController extends Controller
 {
@@ -60,7 +61,6 @@ class IncomingCallController extends Controller
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
             'logo' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
         // Set The Required Variables.
         // Find the required suburb.
         $selected_suburb = Postcode::find($request->suburb);
@@ -69,7 +69,6 @@ class IncomingCallController extends Controller
         $chars = "abcdefghmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         // Shuffle the characters string and trim the first 8 characters.
         $random_string = substr(str_shuffle($chars),0,8);
-
         // Create the new model instance.
         $new_user = User::create([
             'business_name' => ucwords($request->business_name),
@@ -91,31 +90,46 @@ class IncomingCallController extends Controller
             'account_role_id' => 5, // Customer.
             'login_status_id' => 1, // Has access.
         ]);
-
-        // Create the image if required.
+        // DISPLAY IMAGE
+        // Check the request data for the required file.
         if ($request->hasFile('image')) {
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-image' . '.' . $image->getClientOriginalExtension();
+            // Set the new file name.
+            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/customerImages/' . $filename);
-            Image::make($image)->orientate()->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'image_path' => 'storage/images/customerImages/' . $filename
             ]);
         }
-
-        // Create the image if required.
+        // LOGO
+        // Check the request data for the required file.
         if ($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-logo' . '.' . $image->getClientOriginalExtension();
+            // Set the uploaded file.
+            $image = $request->file('logo');
+            // Set the new file name.
+            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/customerLogos/' . $filename);
-            Image::make($logo)->orientate()->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'logo_path' => 'storage/images/customerLogos/' . $filename
             ]);
         }
-
         // Return redirect to job create route.
         return redirect()
             ->route('jobs.create', ['selected_customer_id' => $new_user->id])

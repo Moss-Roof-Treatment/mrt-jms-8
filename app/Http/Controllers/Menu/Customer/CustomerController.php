@@ -13,7 +13,8 @@ use App\Models\State;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class CustomerController extends Controller
 {
@@ -135,33 +136,46 @@ class CustomerController extends Controller
             'bank_account_number' => $request->bank_account_number,
             'business_description' => ucfirst($request->business_description),
         ]);
-
-        // OPTIONAL USER IMAGE
+        // DISPLAY IMAGE
+        // Check the request data for the required file.
         if ($request->hasFile('image')) {
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-image' . '.' . $image->getClientOriginalExtension();
+            // Set the new file name.
+            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/customerImages/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'image_path' => 'storage/images/customerImages/' . $filename
             ]);
         }
-
-        // OPTIONAL BUSINESS LOGO
-        if ($request->logo != null) {
-            // Create the new image.
-            $logo = $request->file('logo');
-            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-logo' . '.' . $logo->getClientOriginalExtension();
-            $location = storage_path('app/public/images/staffLogos/' . $filename);
-            Image::make($logo)->orientate()->resize(256, 256)->save($location);
+        // LOGO
+        // Check the request data for the required file.
+        if ($request->hasFile('logo')) {
+            // Set the uploaded file.
+            $image = $request->file('logo');
+            // Set the new file name.
+            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/customerLogos/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $new_user->update([
                 'logo_path' => 'storage/images/customerLogos/' . $filename
             ]);
         }
-
         // Return a redirect to the show route.
         return redirect()
             ->route('customers.show', $new_user->id)
@@ -298,17 +312,23 @@ class CustomerController extends Controller
 
         // OPTIONAL USER IMAGE
         if ($request->hasFile('image')) {
-            // Delete the old image.
-            if ($selected_customer->image_path != null) {
-                if (file_exists(public_path($selected_customer->image_path))) {
-                    unlink(public_path($selected_customer->image_path));
-                }
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_customer->image_path != null && file_exists(public_path($selected_customer->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_customer->image_path));
             }
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($selected_customer->first_name . '_' . $selected_customer->last_name) . '-image' . '.' . $image->getClientOriginalExtension(); 
+            // Set the new file name.
+            $filename = Str::slug($selected_customer->first_name . '_' . $selected_customer->last_name) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/customerImages/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $selected_customer->update([
                 'image_path' => 'storage/images/customerImages/' . $filename
@@ -316,21 +336,27 @@ class CustomerController extends Controller
         }
 
         // OPTIONAL BUSINESS LOGO
-        if ($request->logo != null) {
-            // Delete the old image.
-            if ($selected_customer->logo_path != null) {
-                if (file_exists(public_path($selected_customer->logo_path))) {
-                    unlink(public_path($selected_customer->logo_path));
-                }
+        if ($request->hasFile('logo')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_customer->logo_path != null && file_exists(public_path($selected_customer->logo_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_customer->logo_path));
             }
-            // Create the new image.
-            $logo = $request->file('logo');
-            $filename = Str::slug($selected_customer->first_name . '_' . $selected_customer->last_name) . '-logo' . '.' . $logo->getClientOriginalExtension();
+            // Set the uploaded file.
+            $image = $request->file('logo');
+            // Set the new file name.
+            $filename = Str::slug($selected_customer->first_name . '_' . $selected_customer->last_name) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/customerLogos/' . $filename);
-            Image::make($logo)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
             // Update the selected model instance.
             $selected_customer->update([
-                'logo_path' => 'storage/images/customerLogos/' . $filename
+                'image_path' => 'storage/images/customerLogos/' . $filename
             ]);
         }
 

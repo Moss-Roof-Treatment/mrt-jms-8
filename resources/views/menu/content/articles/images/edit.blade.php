@@ -50,7 +50,7 @@
           <div class="form-group row">
             <label for="alt_tag_label" class="col-md-2 col-form-label text-md-right">Alt Tag Label</label>
             <div class="col-md-9">
-              <input id="alt_tag_label" type="text" class="form-control @error('alt_tag_label') is-invalid @enderror mb-2" name="alt_tag_label" value="{{ $selected_article_image->alt_tag_label }}" placeholder="Please enter the alt tag label">
+              <input id="alt_tag_label" type="text" class="form-control @error('alt_tag_label') is-invalid @enderror mb-2" name="alt_tag_label" value="{{ old('description', $selected_article_image->alt_tag_label) }}" placeholder="Please enter the alt tag label">
               @error('alt_tag_label')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>

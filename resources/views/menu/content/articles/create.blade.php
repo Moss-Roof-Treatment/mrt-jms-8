@@ -134,20 +134,20 @@
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
-            <label for="location" class="col-md-3 col-form-label text-md-right">Location</label>
-            <div class="col-md-8">
+            <label for="location" class="col-md-2 col-form-label text-md-right">Location</label>
+            <div class="col-md-9">
               <input id="location" type="text" class="form-control @error('location') is-invalid @enderror mb-2" name="location" value="{{ old('location') }}" placeholder="Please enter the location">
               @error('location')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
                 </span>
               @enderror
-            </div> {{-- col-md-8 --}}
+            </div> {{-- col-md-9 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
-            <label for="completed_date" class="col-md-3 col-form-label text-md-right">Completed Date</label>
-            <div class="col-md-8">
+            <label for="completed_date" class="col-md-2 col-form-label text-md-right">Completed At</label>
+            <div class="col-md-9">
               <input type="date" class="form-control @error('completed_date') is-invalid @enderror mb-2" name="completed_date" id="completed_date" value="{{ old('completed_date') }}">
               @error('completed_date')
                 <span class="invalid-feedback" role="alert">
@@ -158,8 +158,8 @@
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
-            <label for="published_date" class="col-md-3 col-form-label text-md-right">Published Date</label>
-            <div class="col-md-8">
+            <label for="published_date" class="col-md-2 col-form-label text-md-right">Published At</label>
+            <div class="col-md-9">
               <input type="date" class="form-control @error('published_date') is-invalid @enderror mb-2" name="published_date" id="published_date" value="{{ old('published_date') }}">
               @error('published_date')
                 <span class="invalid-feedback" role="alert">
@@ -204,12 +204,12 @@
               <a href="{{ route('articles.index') }}" class="btn btn-dark">
                 <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancel
               </a>
-            </div> {{-- col-md-9 offset-md-2 --}}
+            </div> {{-- col-md-9 offset-md-3 --}}
           </div> {{-- form-group row mb-0 --}}
 
         </form>
 
-      </div> {{-- col-sm-7 --}}
+      </div> {{-- col-sm-8 --}}
     </div> {{-- row --}}
 
   </div> {{-- container --}}

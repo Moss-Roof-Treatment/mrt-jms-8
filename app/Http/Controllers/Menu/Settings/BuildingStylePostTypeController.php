@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BuildingStylePostType;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class BuildingStylePostTypeController extends Controller
 {
@@ -65,16 +66,27 @@ class BuildingStylePostTypeController extends Controller
             'title' => ucwords($request->title),
             'description' => ucwords($request->description)
         ]);
-        // Create the new image if required.
-        if (isset($request->image_path)) {
+        // Check the request data for the required file.
+        if ($request->hasFile('image_path')) {
+            // Set the uploaded file.
             $image = $request->file('image_path');
-            $filename = Str::slug($request->title) . 'type' . '.' . $image->getClientOriginalExtension();
-            $new_building_style_type->image_path = 'storage/images/buildingStylePostTypes/' . $filename;
+            // Set the new file name.
+            $filename = Str::slug($request->title) . 'building-image' . '.' . $image->getClientOriginalExtension();
+            // Set the new path variable.
+            $new_building_type_image_path = 'storage/images/buildingStylePostTypes/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/buildingStylePostTypes/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
         }
         // Save and update the new model instance.
-        $new_building_style_type->save();
+        $new_building_style_type->update([
+            'image_path' => isset($new_building_type_image_path) ? $new_building_type_image_path : $new_building_style->image_path,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('building-style-post-t-settings.show', $new_building_style_type->id)

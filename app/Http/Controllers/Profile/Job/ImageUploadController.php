@@ -9,7 +9,8 @@ use App\Models\JobImageType;
 use App\Models\Quote;
 use Auth;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Session;
 
 class ImageUploadController extends Controller
@@ -65,50 +66,44 @@ class ImageUploadController extends Controller
     {
         // Set The Required Variables.
         $selected_job_id = $request->job_id;
-
+        // Check the request data for the required file.
         if ($request->hasFile('file')) {
-
-            $image = $request->file('file');
-
             // Find job image count.
             $current_image_counter = JobImage::where('job_id', $selected_job_id)->count();
-
-            // Set the number for the image identifier
-            if ($current_image_counter >= 1) {
-                $current_image_count = ++$current_image_counter;
-            } else {
-                $current_image_count = 1;
-            }
-
-            // New model instance.
-            $new_job_image = new JobImage;
-
-            // Assign data to the image.
-            $new_job_image->job_id = $selected_job_id;
-            $new_job_image->staff_id = Auth::id();
-            $new_job_image->job_image_type_id = $request->image_type;
-            $new_job_image->image_identifier = $selected_job_id . ' - ' . $current_image_count;
-            $new_job_image->colour_id = 1; // Set default colour value.
-
             // Get the image type title.
             $selected_image_type = JobImageType::find($request->image_type);
-
-            $new_job_image->title = $selected_image_type->title . ' image';
-            $new_job_image->description = 'A ' . $selected_image_type->title . ' image.';
-
-            // Create file name from job id, image type and time.
+            // Set the image identifier.
+            $current_image_counter >= 1
+                ? ++$current_image_counter
+                : $current_image_count = 1;
+            // Create new model instance.
+            $new_job_image = JobImage::create([
+                'job_id' => $selected_job_id,
+                'staff_id' => Auth::id(),
+                'job_image_type_id' => $request->image_type,
+                'image_identifier' => $selected_job_id . ' - ' . $current_image_count,
+                'colour_id' => 1, // Set default colour value.
+                'title' => $selected_image_type->title . ' image',
+                'description' => 'A ' . $selected_image_type->title . ' image.',
+            ]);
+            // Set the uploaded file.
+            $image = $request->file('file');
+            // Set the new file name.
             $filename = Str::slug($new_job_image->job_id . ' ' . $selected_image_type->title) . '-' . rand(0, 99) . time() . '.' . $image->getClientOriginalExtension();
-            // Create the image path.
-            $new_job_image->image_path = 'storage/images/jobs/' . $filename;        
-            // Create the image location.
-            $location = public_path($new_job_image->image_path);
-            // Resize the image and keep the aspect ratio, then save the image.
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
-
-            // Save The new job image.
-            $new_job_image->save();
+            // Set the new file location.
+            $location = storage_path('app/public/images/jobs/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $new_job_image->update([
+                'image_path' => 'storage/images/jobs/' . $filename
+            ]);
         }
-
+        // Sucess message.
         Session::flash('success', 'You have successfully uploaded the selected job image(s).');
     }
 }

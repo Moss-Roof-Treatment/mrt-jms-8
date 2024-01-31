@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Menu\Content;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ArticleCategory;
+use Auth;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class CategoryController extends Controller
 {
@@ -59,24 +61,28 @@ class CategoryController extends Controller
             'title' => 'required|min:5|max:255|unique:article_categories,title',
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
+        // Create the new image if required.
+        if (isset($request->image)) {
+            // Set the uploaded file.
+            $image = $request->file('file');
+            // Set the new file name.
+            $filename = Str::slug($request->title) . '-image-' . '-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/content/categories/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
+        }
         // Create the new model instance.
         $new_category = ArticleCategory::create([
             'title' => $request->title,
-            'slug' => Str::slug($request->title)
+            'slug' => Str::slug($request->title),
+            'image_path' => 'storage/images/content/categories/' . $filename,
+            'staff_id' => Auth::id(),
         ]);
-
-        // Create the new image if required.
-        if (isset($request->image)) {
-            $image = $request->file('image');
-            $filename = Str::slug($request->title) . '-image' . '.' . $image->getClientOriginalExtension();
-            $new_category->image_path = 'storage/images/content/categories/' . $filename;
-            $location = storage_path('app/public/images/content/categories/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
-        }
-
-        $new_category->save();
-
         // Return a redirect to the show route.
         return redirect()
             ->route('content-categories.show', $new_category->id)
@@ -127,33 +133,34 @@ class CategoryController extends Controller
             'title' => 'required|min:5|max:255|unique:article_categories,title,'.$id,
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
-
         // Find the required model instance.
         $selected_category = ArticleCategory::findOrFail($id);
-
-        // Update the selected model instance.
-        $selected_category->title = $request->title;
-        $selected_category->slug = Str::slug($request->title);
-
+        // Check if a new image has been uploaded.
         if (isset($request->image)) {
-            // Check if the selected model instance image path is not empty.
-            if ($selected_category->image_path != null) {
-                // Check if the file exists on the server.
-                if (file_exists(public_path($selected_category->image_path))) {
-                    // Delete the selected image.
-                    unlink(public_path($selected_category->image_path));
-                }
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_category->image_path != null && file_exists(public_path($selected_category->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_category->image_path));
             }
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($request->title) . '-image' . '.' . $image->getClientOriginalExtension();
-            $selected_category->image_path = 'storage/images/content/categories/' . $filename;
+            // Set the new file name.
+            $filename = Str::slug($request->title) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
             $location = storage_path('app/public/images/content/categories/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
         }
-
-        $selected_category->save();
-
+        // Update the selected model instance.
+        $selected_category->update([
+            'title' => $request->title,
+            'slug' => Str::slug($request->title),
+            'image_path' => 'storage/images/content/categories/' . $filename,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('content-categories.show', $id)
@@ -170,20 +177,13 @@ class CategoryController extends Controller
     {
         // Find the required model instance.
         $selected_category = ArticleCategory::findOrFail($id);
-
-        // Delete the required image from the server.
-        // Check if the selected model instance image path is not empty.
-        if ($selected_category->image_path != null) {
-            // Check if the file exists on the server.
-            if (file_exists(public_path($selected_category->image_path))) {
-                // Delete the selected image.
-                unlink(public_path($selected_category->image_path));
-            }
+        // Check if the file path value is not null and file exists on the server.
+        if ($selected_category->image_path != null && file_exists(public_path($selected_category->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($selected_category->image_path));
         }
-
         // Delete the selected model instance.
         $selected_category->delete();
-
         // Return a redirect to the index route.
         return redirect()
             ->route('content-categories.index')
