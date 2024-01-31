@@ -17,7 +17,7 @@ class DownloadAttachmentController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('IsAnyStaffMember');
+        $this->middleware('isAnyStaffMember');
     }
 
     /**
