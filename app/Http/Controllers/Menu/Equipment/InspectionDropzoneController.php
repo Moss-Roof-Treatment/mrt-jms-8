@@ -40,7 +40,7 @@ class InspectionDropzoneController extends Controller
             // Set the uploaded file.
             $image = $request->file('file');
             // Set the new file name.
-            $filename = Str::slug($selected_inspection->equipment_id . ' ' . $selected_inspection->id . ' ' . uniqid()) . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/equipment/inspections/' . $filename);
             // Create new manager instance with desired driver.
@@ -56,7 +56,7 @@ class InspectionDropzoneController extends Controller
                 'image_path' => 'storage/images/equipment/inspections/' . $filename,
             ]);
         }
-        // Set the flash message in the session.
+        // Flash success message to the session.
         Session::flash('success', 'You have successfully uploaded the selected inspection image(s).');
     }
 }

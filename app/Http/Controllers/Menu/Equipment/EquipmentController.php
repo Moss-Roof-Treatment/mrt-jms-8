@@ -103,7 +103,7 @@ class EquipmentController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($equipment->title) . '-equipment-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/equipment/' . $filename);
             // Create new manager instance with desired driver.
@@ -228,7 +228,7 @@ class EquipmentController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($equipment->getFullNameAttribute()) . '-equipment-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/equipment/' . $filename);
             // Create new manager instance with desired driver.

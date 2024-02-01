@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Session;
 
 class ProductImageController extends Controller
@@ -33,35 +34,30 @@ class ProductImageController extends Controller
     {
         // Set The Required Variables.
         $selected_product = Product::find($request->selected_product_id);
-
-        // Create the new model instance.
-        if ($request->hasFile('file')) {
-
-            $image = $request->file('file');
-
-            // New model instance.
-            $new_product_image = new ProductImage;
-
-            // Check for featured status
-            if (!$selected_product->product_images->count()) {
-                $new_product_image->is_featured = 1;
-            }
-
-            $new_product_image->product_id = $selected_product->id; 
-
-            // Create file name from job id, image type and time.
-            $filename = Str::slug($selected_product->name) . '-' . rand(0, 99) . time() . '.' . $image->getClientOriginalExtension();
-            // Create the image path.
-            $new_product_image->image_path = 'storage/images/products/' . $filename;        
-            // Create the image location.
-            $location = public_path($new_product_image->image_path);
-            // Resize the image and keep the aspect ratio, then save the image.
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
-
-            // Save The new job image.
-            $new_product_image->save();
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new path variable.
+            $new_storage_path = 'storage/images/products/' . $filename;
+            // Set the new file location.
+            $location = storage_path('app/public/images/products/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
         }
-
+        // Create the new model instance.
+        ProductImage::create([
+            'product_id' => $selected_product->id,
+            'is_featured' => !$selected_product->product_images->count() ? 1 : 0,
+            'image_path' => $new_storage_path,
+        ]);
+        // Flash success message to the session.
         Session::flash('success', 'You have successfully uploaded the selected product image(s).');
     }
 

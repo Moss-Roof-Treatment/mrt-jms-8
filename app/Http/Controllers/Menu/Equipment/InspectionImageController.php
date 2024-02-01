@@ -59,8 +59,8 @@ class InspectionImageController extends Controller
         if ($request->hasFile('image')) {
             // Loop through each image in the request.
             foreach($request->file('image') as $image){
-                // Set the new file name.
-                $filename = Str::slug($selected_inspection->equipment_id . ' ' . $selected_inspection->id . ' ' . uniqid()) . '.' . $image->getClientOriginalExtension();
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
                 // Set the new file location.
                 $location = storage_path('app/public/images/equipment/inspections/' . $filename);
                 // Create new manager instance with desired driver.

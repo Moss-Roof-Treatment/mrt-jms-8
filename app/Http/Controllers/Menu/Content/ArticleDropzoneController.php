@@ -44,7 +44,7 @@ class ArticleDropzoneController extends Controller
             // Set the uploaded file.
             $image = $request->file('file');
             // Set the new file name.
-            $filename = Str::slug($selected_article->title) . '-image-' . $i . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/content/articles/' . $filename);
             // Create new manager instance with desired driver.

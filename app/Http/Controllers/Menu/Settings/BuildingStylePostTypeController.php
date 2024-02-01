@@ -71,7 +71,7 @@ class BuildingStylePostTypeController extends Controller
             // Set the uploaded file.
             $image = $request->file('image_path');
             // Set the new file name.
-            $filename = Str::slug($request->title) . 'building-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new path variable.
             $new_building_type_image_path = 'storage/images/buildingStylePostTypes/' . $filename;
             // Set the new file location.
@@ -85,7 +85,7 @@ class BuildingStylePostTypeController extends Controller
         }
         // Save and update the new model instance.
         $new_building_style_type->update([
-            'image_path' => isset($new_building_type_image_path) ? $new_building_type_image_path : $new_building_style->image_path,
+            'image_path' => isset($new_building_type_image_path) ? $new_building_type_image_path : $new_building_style_type->image_path,
         ]);
         // Return a redirect to the show route.
         return redirect()
@@ -140,28 +140,34 @@ class BuildingStylePostTypeController extends Controller
         ]);
         // Find the required model instance.
         $selected_building_style_post_type = BuildingStylePostType::findOrFail($id);
-        // Update the selected model instance.
-        $selected_building_style_post_type->title = ucwords($request->title);
-        $selected_building_style_post_type->description = ucwords($request->description);
         // Create the new image if required.
-        if (isset($request->image_path)) {
-            // Check if the selected model instance image path is not empty.
-            if ($selected_building_style_post_type->image_path != null) {
-                // Check if the file exists on the server.
-                if (file_exists(public_path($selected_building_style_post_type->image_path))) {
-                    // Delete the selected image.
-                    unlink(public_path($selected_building_style_post_type->image_path));
-                }
+        if ($request->hasFile('image_path')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_building_style_post_type->image_path != null && file_exists(public_path($selected_building_style_post_type->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_building_style_post_type->image_path));
             }
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('image_path');
-            $filename = Str::slug($request->title) . 'type' . '.' . $image->getClientOriginalExtension();
-            $selected_building_style_post_type->image_path = 'storage/images/buildingStylePostTypes/' . $filename;
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new path variable.
+            $new_building_type_image_path = 'storage/images/buildingStylePostTypes/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/buildingStylePostTypes/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
         }
-        // Save and update the new model instance.
-        $selected_building_style_post_type->save();
+        // Update the selected model instance.
+        $selected_building_style_post_type->update([
+            'title' => ucwords($request->title),
+            'description' => ucwords($request->description),
+            'image_path' => $new_building_type_image_path,
+        ]);
         // Return a redirect to the show route.
         return redirect()
             ->route('building-style-post-t-settings.show', $selected_building_style_post_type->id)

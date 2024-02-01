@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductController extends Controller
 {
@@ -102,18 +103,27 @@ class ProductController extends Controller
             'weight' => $request->weight,
             'is_visible' => $request->is_visible,
         ]);
-        // Optional Product Image
+        // Check the request data for the required file.
         if ($request->hasFile('image')) {
-            // Create the new image.
+            // Set the uploaded file.
             $image = $request->file('image');
-            $filename = Str::slug($formated_name) . '-' . time() . '.' . $image->getClientOriginalExtension(); 
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new path variable.
+            $new_storage_path = 'storage/images/products/' . $filename;
+            // Set the new file location.
             $location = storage_path('app/public/images/products/' . $filename);
-            Image::make($image)->orientate()->resize(1280, 720)->save($location);
-            // Create the new image database enrty.
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(1280, 720)->toJpeg(80)->save($location);
+            // Create the new model instance.
             ProductImage::create([
                 'product_id' => $new_product->id,
                 'is_featured' => 1,
-                'image_path' => 'storage/images/products/' . $filename,
+                'image_path' => $new_storage_path,
             ]);
         }
         // Return a redirect to the show route.
@@ -228,10 +238,8 @@ class ProductController extends Controller
         // Delete the relationship instances.
         if ($selected_product->product_images()->exists()) {
             foreach($selected_product->product_images as $image) {
-                if ($image->image_path != null) {
-                    if (file_exists(public_path($image->image_path))) {
-                        unlink(public_path($image->image_path));
-                    }
+                if ($image->image_path != null && file_exists(public_path($image->image_path))) {
+                    unlink(public_path($image->image_path));
                 }
                 $image->delete();
             }

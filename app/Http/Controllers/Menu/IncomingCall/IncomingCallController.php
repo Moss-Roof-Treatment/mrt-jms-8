@@ -96,7 +96,7 @@ class IncomingCallController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/customerImages/' . $filename);
             // Create new manager instance with desired driver.
@@ -116,7 +116,7 @@ class IncomingCallController extends Controller
             // Set the uploaded file.
             $image = $request->file('logo');
             // Set the new file name.
-            $filename = Str::slug($new_user->first_name . '_' . $new_user->last_name) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/customerLogos/' . $filename);
             // Create new manager instance with desired driver.

@@ -33,8 +33,8 @@ class CreateQuoteProductsTable extends Migration
             $table->text('description')->nullable(); // A unique description or directions for this specific quote product only.
             $table->float('individual_price')->nullable(); // This value is for display purposes only, it is not used in calculations, for labling only.
             $table->integer('total_price')->nullable(); // The value used for the total cost of the quote product, it is not quantity times individual price.
-            $table->float('price_per_litre'); // For Fuel Only - The price per litre that is locked in when the fuel quote product is created.
-            $table->float('usage_per_100_kms'); // For Fuel Only - The usage per 100 kms that is locked in when the fuel quote product is created.
+            $table->float('price_per_litre')->default(0.00); // For Fuel Only - The price per litre that is locked in when the fuel quote product is created.
+            $table->float('usage_per_100_kms')->default(0.00); // For Fuel Only - The usage per 100 kms that is locked in when the fuel quote product is created.
         });
     }
 

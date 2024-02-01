@@ -90,7 +90,7 @@ class BuildingStylePostController extends Controller
             // Set the uploaded file.
             $image = $request->file('roof_outline_image_path');
             // Set the new file name.
-            $filename = Str::slug($request->title) . 'roof-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new path variable.
             $new_roof_outline_image_path = 'storage/images/buildingStylePosts/' . $filename;
             // Set the new file location.
@@ -107,7 +107,7 @@ class BuildingStylePostController extends Controller
             // Set the uploaded file.
             $image = $request->file('building_image_path');
             // Set the new file name.
-            $filename = Str::slug($request->title) . 'building-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new path variable.
             $new_building_image_path = 'storage/images/buildingStylePosts/' . $filename;
             // Set the new file location.
@@ -214,7 +214,7 @@ class BuildingStylePostController extends Controller
             // Set the uploaded file.
             $image = $request->file('roof_outline_image_path');
             // Set the new file name.
-            $filename = Str::slug($request->title) . 'roof-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new path variable.
             $new_roof_outline_image_path = 'storage/images/buildingStylePosts/' . $filename;
             // Set the new file location.
@@ -236,7 +236,7 @@ class BuildingStylePostController extends Controller
             // Set the uploaded file.
             $image = $request->file('building_image_path');
             // Set the new file name.
-            $filename = Str::slug($request->title) . 'building-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new path variable.
             $new_building_image_path = 'storage/images/buildingStylePosts/' . $filename;
             // Set the new file location.

@@ -74,7 +74,7 @@ class ImageUploadController extends Controller
             $selected_image_type = JobImageType::find($request->image_type);
             // Set the image identifier.
             $current_image_counter >= 1
-                ? ++$current_image_counter
+                ? $current_image_count = ++$current_image_counter
                 : $current_image_count = 1;
             // Create new model instance.
             $new_job_image = JobImage::create([
@@ -89,7 +89,7 @@ class ImageUploadController extends Controller
             // Set the uploaded file.
             $image = $request->file('file');
             // Set the new file name.
-            $filename = Str::slug($new_job_image->job_id . ' ' . $selected_image_type->title) . '-' . rand(0, 99) . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/jobs/' . $filename);
             // Create new manager instance with desired driver.
@@ -103,7 +103,7 @@ class ImageUploadController extends Controller
                 'image_path' => 'storage/images/jobs/' . $filename
             ]);
         }
-        // Sucess message.
+        // Flash success message to the session.
         Session::flash('success', 'You have successfully uploaded the selected job image(s).');
     }
 }

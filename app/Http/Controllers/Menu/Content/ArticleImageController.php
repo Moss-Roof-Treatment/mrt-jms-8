@@ -60,8 +60,8 @@ class ArticleImageController extends Controller
                 : $i = 1;
             // Loop through each uploaded image.
             foreach($request->file('image') as $image){
-                 // Set the new file name.
-                $filename = Str::slug($selected_article->title) . '-image-' . $i . '-' . time() . '.' . $image->getClientOriginalExtension();
+                // Set the new file name.
+                $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
                 // Set the new file location.
                 $location = storage_path('app/public/images/content/articles/' . $filename);
                 // Create new manager instance with desired driver.
@@ -148,7 +148,7 @@ class ArticleImageController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_article_image->article->title) . '-image-' . $i . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/content/articles/' . $filename);
             // Create new manager instance with desired driver.

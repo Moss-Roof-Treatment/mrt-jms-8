@@ -105,7 +105,7 @@ class QualificationController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_user->getFullNameAttribute() . '-' . $request->title) . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/qualifications/' . $filename);
             // Create new manager instance with desired driver.
@@ -190,7 +190,7 @@ class QualificationController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_qualification->staff->getFullNameAttribute() . '-' . $request->title) . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/qualifications/' . $filename);
             // Create new manager instance with desired driver.

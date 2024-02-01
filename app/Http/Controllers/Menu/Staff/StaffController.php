@@ -141,7 +141,7 @@ class StaffController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/staffImages/' . $filename);
             // Create new manager instance with desired driver.
@@ -160,7 +160,7 @@ class StaffController extends Controller
             // Set the uploaded file.
             $image = $request->file('logo');
             // Set the new file name.
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/staffLogos/' . $filename);
             // Create new manager instance with desired driver.
@@ -302,40 +302,6 @@ class StaffController extends Controller
             'kin_mobile_phone' => $request->kin_mobile_phone,
             'kin_relationship' => ucfirst($request->kin_relationship)
         ]);
-        // USER DISPLAY IMAGE
-        if ($request->hasFile('image')) {
-            if ($selected_user->image_path != null) {
-                if (file_exists(public_path($selected_user->image_path))) {
-                    unlink(public_path($selected_user->image_path));
-                }
-            }
-            $image = $request->file('image');
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image' . '.' . $image->getClientOriginalExtension(); 
-            $location = storage_path('app/public/images/staffImages/' . $filename);
-            Image::make($image)->orientate()->resize(256, 256)->save($location);
-            // Update the selected model instance.
-            $selected_user->update([
-                'image_path' => 'storage/images/staffImages/' . $filename
-            ]);
-        }
-        // USER BUSINESS LOGO
-        if ($request->hasFile('logo')) {
-            if ($selected_user->logo_path != null) {
-                if (file_exists(public_path($selected_user->logo_path))) {
-                    unlink(public_path($selected_user->logo_path));
-                }
-            }
-            $logo = $request->file('logo');
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-logo' . '.' . $logo->getClientOriginalExtension();
-            $location = storage_path('app/public/images/staffLogos/' . $filename);
-            Image::make($logo)->orientate()->resize(256, 256)->save($location);
-            // Update the selected model instance.
-            $selected_user->update([
-                'logo_path' => 'storage/images/staffLogos/' . $filename
-            ]);
-        }
-
-
         // DISPLAY IMAGE
         // Check the request data for the required file.
         if ($request->hasFile('image')) {
@@ -347,7 +313,7 @@ class StaffController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/staffImages/' . $filename);
             // Create new manager instance with desired driver.
@@ -370,9 +336,9 @@ class StaffController extends Controller
                 unlink(public_path($selected_user->logo_path));
             }
             // Set the uploaded file.
-            $image = $request->file('image');
+            $image = $request->file('logo');
             // Set the new file name.
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/staffLogos/' . $filename);
             // Create new manager instance with desired driver.

@@ -141,7 +141,7 @@ class TradespersonController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/tradespersonImages/' . $filename);
             // Create new manager instance with desired driver.
@@ -161,7 +161,7 @@ class TradespersonController extends Controller
             // Set the uploaded file.
             $image = $request->file('logo');
             // Set the new file name.
-            $filename = Str::slug($new_user->getFullNameAttribute()) . '-logo-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/tradespersonLogos/' . $filename);
             // Create new manager instance with desired driver.
@@ -314,7 +314,7 @@ class TradespersonController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/tradespersonImages/' . $filename);
             // Create new manager instance with desired driver.
@@ -337,9 +337,9 @@ class TradespersonController extends Controller
                 unlink(public_path($selected_user->logo_path));
             }
             // Set the uploaded file.
-            $image = $request->file('image');
+            $image = $request->file('logo');
             // Set the new file name.
-            $filename = Str::slug($selected_user->getFullNameAttribute()) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/tradespersonLogos/' . $filename);
             // Create new manager instance with desired driver.

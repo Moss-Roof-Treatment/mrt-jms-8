@@ -105,7 +105,7 @@ class QualificationController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_user->getFullNameAttribute() . '-' . $request->title) . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/qualifications/' . $filename);
             // Create new manager instance with desired driver.
@@ -190,7 +190,7 @@ class QualificationController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_qualification->staff->getFullNameAttribute() . '-' . $request->title) . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/qualifications/' . $filename);
             // Create new manager instance with desired driver.
@@ -218,12 +218,10 @@ class QualificationController extends Controller
      */
     public function destroy($id)
     {
-        // ?????????????????????
-
-        // This might be broken due to calling request and sending it as a get parameter.
-
         // Find the required model instance.
         $selected_qualification = Qualification::findOrFail($id);
+        // Set the user id for redirect.
+        $selected_user_id = $selected_qualification->staff_id;
         // Check if the file path value is not null and file exists on the server.
         if ($selected_qualification->image_path != null && file_exists(public_path($selected_qualification->image_path))) {
             // Delete the file from the server.
@@ -233,7 +231,7 @@ class QualificationController extends Controller
         $selected_qualification->delete();
         // Return a redirect to the index route.
         return redirect()
-            ->route('contractor-qualifications.index', ['selected_user_id' => $request->selected_user_id])
+            ->route('contractor-qualifications.index', ['selected_user_id' => $selected_user_id])
             ->with('success', 'You have successfully deleted the selected qualification.');
     }
 }

@@ -60,26 +60,13 @@ class DocumentController extends Controller
             'title' => $request->title,
             'description' => $request->description
         ]);
-        // Create the new image if required.
-        // if ($request->hasFile('image')) {
-        //     // Create the image.
-        //     $image = $request->file('image');
-        //     $filename = Str::slug($new_document->title) . '-image' . '.' . $image->getClientOriginalExtension();
-        //     $location = storage_path('app/public/images/equipment/documents/' . $filename);
-        //     Image::make($image)->orientate()->save($location);
-        //     // Update the selected model instance.
-        //     $new_document->update([
-        //         'image_path' => 'storage/images/equipment/documents/' . $filename
-        //     ]);
-        // }
-
         // Image Upload.
         // Check if an image has been supplied.
         if ($request->hasFile('image')) {
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($new_document->title) . '-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/equipment/documents/' . $filename);
             // Create new manager instance with desired driver.
@@ -98,7 +85,8 @@ class DocumentController extends Controller
         if ($request->hasFile('document')) {
             // Create the logo.
             $document = $request->file('document');
-            $filename = Str::slug($new_document->title) . '-' . time() . '.' . $document->getClientOriginalExtension();
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $document->getClientOriginalExtension();
             $location = storage_path('app/public/documents/equipment/');
             $document->move($location, $filename);
             // Update the selected model instance.
@@ -166,7 +154,7 @@ class DocumentController extends Controller
             'description' => $request->description
         ]);
         // Replace the stored image if required.
-        if (isset($request->image)){
+        if ($request->hasFile('image')){
             // Delete the old file from storage.
             if ($selected_document->image_path != null) {
                 if (file_exists(public_path($selected_document->image_path))) {
@@ -176,7 +164,7 @@ class DocumentController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_document->title) . '-image' . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/equipment/documents/' . $filename);
             // Create new manager instance with desired driver.
@@ -200,7 +188,8 @@ class DocumentController extends Controller
             }
             // Create the new image.
             $document = $request->file('document');
-            $filename = Str::slug($selected_document->title) . '-document' . '.' . $document->getClientOriginalExtension();
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $document->getClientOriginalExtension();
             $location = storage_path('app/public/documents/equipment/');
             $document->move($location, $filename);
             // Update the selected model instance.

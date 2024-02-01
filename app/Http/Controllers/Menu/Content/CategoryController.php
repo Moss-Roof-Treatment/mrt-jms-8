@@ -62,11 +62,11 @@ class CategoryController extends Controller
             'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
         // Create the new image if required.
-        if (isset($request->image)) {
+        if ($request->hasFile('image')) {
             // Set the uploaded file.
-            $image = $request->file('file');
+            $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($request->title) . '-image-' . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/content/categories/' . $filename);
             // Create new manager instance with desired driver.
@@ -136,7 +136,7 @@ class CategoryController extends Controller
         // Find the required model instance.
         $selected_category = ArticleCategory::findOrFail($id);
         // Check if a new image has been uploaded.
-        if (isset($request->image)) {
+        if ($request->hasFile('image')) {
             // Check if the file path value is not null and file exists on the server.
             if ($selected_category->image_path != null && file_exists(public_path($selected_category->image_path))) {
                 // Delete the file from the server.
@@ -145,7 +145,7 @@ class CategoryController extends Controller
             // Set the uploaded file.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($request->title) . '-image-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/content/categories/' . $filename);
             // Create new manager instance with desired driver.

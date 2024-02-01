@@ -78,9 +78,9 @@ class ImageController extends Controller
                 'description' => 'A ' . $selected_image_type->title . ' image.',
             ]);
             // Set the uploaded file.
-            $image = $request->file('image');
+            $image = $request->file('file');
             // Set the new file name.
-            $filename = Str::slug($new_job_image->job_id . ' ' . $selected_image_type->title) . '-' . rand(0, 99) . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/jobs/' . $filename);
             // Create new manager instance with desired driver.
@@ -108,7 +108,7 @@ class ImageController extends Controller
                 ]);
             }
         }
-
+        // Flash success message to the session.
         Session::flash('success', 'You have successfully uploaded the selected job image(s)');
     }
 
@@ -187,7 +187,7 @@ class ImageController extends Controller
             // Create the new job image.
             $image = $request->file('image');
             // Set the new file name.
-            $filename = Str::slug($selected_image->job_id . ' ' . $selected_image_type->title) . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
             // Set the new file location.
             $location = storage_path('app/public/images/jobs/' . $filename);
             // Create new manager instance with desired driver.
