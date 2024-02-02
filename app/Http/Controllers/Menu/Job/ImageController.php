@@ -162,14 +162,14 @@ class ImageController extends Controller
         $selected_image = JobImage::findOrFail($id);
         // Set the required variables.
         // Default image title.
-        if (isset($request->default_image_title)) {
+        if (isset($request->default_image_title) && $request->default_image_title != null) {
             // Find the default image title.
             $default_image_title = DefaultImageTitle::find($request->default_image_title);
             // Concatinate the default image text to the title. 
             $new_image_title = ucfirst($selected_image->title . ' ' . $default_image_title->text);
         }
         // Default image text.
-        if (isset($request->default_image_text)) {
+        if (isset($request->default_image_text) && $request->default_image_text != null) {
             // Find the default image text.
             $default_image_text = DefaultImageText::find($request->default_image_text);
             // Concatinate the default image text to the description. 
@@ -217,9 +217,9 @@ class ImageController extends Controller
         $selected_image->update([
             'job_id' => $request->job_id,
             'job_image_type_id' => $request->image_type_id,
-            'title' => isset($new_image_title) ? $new_image_title : $selected_image->title,
+            'title' => isset($new_image_title) ? $new_image_title : $request->title,
             'colour_id' => $request->title_colour,
-            'description' => isset($new_image_text) ? $new_image_text : $selected_image->description,
+            'description' => isset($new_image_text) ? $new_image_text : $request->description,
             'image_path' => isset($new_image_path) ? $new_image_path : $selected_image->image_path
         ]);
         // Return a redirect to the show route.

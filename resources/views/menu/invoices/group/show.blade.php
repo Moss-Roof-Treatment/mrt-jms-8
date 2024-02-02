@@ -1,6 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.jquery')
 
 @section('title', '- Invoices - View Confirmed Outstanding Invoice Items')
+
+@push('css')
+{{-- jquery datatables css --}}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
+{{-- jquery datatables css --}}
+@endpush
 
 @section('content')
 <section>
@@ -79,7 +85,7 @@
 
     {{-- outstanding invoices table --}}
     <h5 class="text-primary my-3"><b>All Outstanding Invoice Items</b></h5>
-    <table class="table table-bordered table-fullwidth table-striped">
+    <table id="datatable" class="table table-bordered table-fullwidth table-striped" style="width:100%">
       <thead class="table-secondary">
         <tr>
           <th>Identifier</th>
@@ -186,3 +192,19 @@
   </div> {{-- container --}}
 </section> {{-- section --}}
 @endsection
+
+@push('js')
+{{-- jquery datatables js --}}
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+<script>
+  new DataTable('#datatable', {
+    'info': false, {{-- Show the page info --}}
+    'lengthChange': false, {{-- Show results length --}}
+    'order': [[0, 'asc']], {{-- the default order --}}
+    'paging': false, {{-- Show pagination --}}
+    'searching': false, {{-- Search for results --}}
+  });
+</script>
+{{-- jquery datatables js --}}
+@endpush

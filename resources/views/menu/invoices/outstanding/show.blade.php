@@ -163,7 +163,15 @@
                       {{ $invoice->identifier }}
                     </a>
                   </td>
-                  <td>{{ date('d/m/y - h:iA', strtotime($invoice->submission_date)) }}</td>
+                  <td>
+                    @if($invoice->submission_date == null)
+                      <span class="badge badge-warning py-2 px-2">
+                        <i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>Is Not Submitted
+                      </span>
+                    @else
+                      {{ date('d/m/y - h:iA', strtotime($invoice->submission_date)) }}
+                    @endif
+                  </td>
                 </tr>
               @endforeach
             </tbody>
