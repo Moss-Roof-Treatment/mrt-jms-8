@@ -6,7 +6,7 @@
 
 @push('css')
 {{-- jquery datatables css --}}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 {{-- jquery datatables css --}}
 @endpush
 
@@ -42,7 +42,7 @@
             </div> {{-- card --}}
         @else
             <div class="table-responsive py-2 px-2">
-                <table class="table table-bordered table-fullwidth table-striped bg-white" id="completed-commissions" style="width:100%">
+                <table class="table table-bordered table-fullwidth table-striped bg-white" id="datatable" style="width:100%">
                     <thead class="table-secondary">
                         <tr>
                             <th>ID</th>
@@ -66,27 +66,26 @@
 
 @push('js')
 {{-- jquery datatables js --}}
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#completed-commissions').DataTable({
-            processing: true,
-            serverSide: true,
-            order: [[ 0, "desc" ]],
-            columnDefs: [
-                {targets: 5, orderable: false, className: "text-nowrap"},
-            ],
-            ajax: '{{ route('invoice-commissions-completed-dt.create') }}',
-            columns: [
-                { data: 'id', name: 'id' },
-                { data: 'job', name: 'job' },
-                { data: 'customer', name: 'customer' },
-                { data: 'quote_status', name: 'quote_status' },
-                { data: 'salesperson', name: 'salesperson' },
-                { data: 'action', name: 'action', orderable: false, searchable: false }
-            ],
-        });
+    new DataTable('#datatable', {
+        "processing": true,
+        "serverSide": true,
+        "order": [[ 0, "desc" ]],
+        "columnDefs": [
+            {"targets": 5, "orderable": false, "className": "text-nowrap"},
+        ],
+        ajax: '{{ route('invoice-commissions-completed-dt.create') }}',
+        "columns": [
+            { "data": 'id', "name": 'id' },
+            { "data": 'job', "name": 'job' },
+            { "data": 'customer', "name": 'customer' },
+            { "data": 'quote_status', "name": 'quote_status' },
+            { "data": 'salesperson', "name": 'salesperson' },
+            { "data": 'action', "name": 'action', "orderable": false, "searchable": false }
+        ],
     });
-    </script>
+</script>
+{{-- jquery datatables js --}}
 @endpush

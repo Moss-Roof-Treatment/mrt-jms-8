@@ -4,7 +4,7 @@
 
 @push('css')
 {{-- jquery datatables css --}}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 {{-- jquery datatables css --}}
 @endpush
 
@@ -34,7 +34,7 @@
 
         <h5 class="text-primary my-3"><b>All Invoices In This Group</b></h5>
         <div class="table-responsive">
-            <table class="table table-bordered table-fullwidth table-striped bg-white">
+            <table id="datatable" class="table table-bordered table-fullwidth table-striped bg-white" style="width:100%">
                 <thead class="table-secondary">
                     <th>Identifier</th>
                     <th>Confirmation Number</th>
@@ -149,3 +149,24 @@
     </div> {{-- container --}}
 </section> {{-- section --}}
 @endsection
+
+@push('js')
+{{-- jquery datatables js --}}
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+<script>
+    new DataTable('#datatable', {
+        "info": true, {{-- Show the page info --}}
+        "lengthChange": true, {{-- Show results length --}}
+        "ordering": true, {{-- Allow ordering of all columns --}}
+        "paging": true, {{-- Show pagination --}}
+        "processing": true, {{-- Show processing message on long load time --}}
+        "searching": true, {{-- Search for results --}}
+        "order": [[ 0, "desc" ]],
+        "columnDefs": [
+            {"targets": 10, "orderable": false, "className": "text-nowrap"},
+        ],
+    });
+</script>
+{{-- jquery datatables js --}}
+@endpush

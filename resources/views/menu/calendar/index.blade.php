@@ -13,7 +13,7 @@
 </style>
 {{-- fullcalendar css --}}
 {{-- jquery datatables css --}}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 {{-- jquery datatables css --}}
 @endpush
 
@@ -190,20 +190,22 @@
 {{-- fullcalendar js --}}
 
 {{-- jquery datatables js --}}
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 <script>
-$(document).ready(function() {
-  $('#datatable').DataTable({
-    processing: true,
-    serverSide: true,
-    order: [[ 0, "desc" ]],
-    pageLength: 25,
-    columnDefs: [
+  new DataTable('#datatable', {
+    'processing': true, {{-- Show loading indicator --}}
+    'serverSide': true, {{-- Serverside processing --}}
+    'order': [[0, 'desc']], {{-- The default order --}}
+    'pageLength': 25, {{-- Default pagination length --}}
+    'paging': false, {{-- Show pagination --}}
+    'searching': false, {{-- Search for results --}}
+    'info': false,
+    'columnDefs': [
       {"targets": 3, "className": "text-nowrap"},
     ],
-    ajax: '{{ route('calendar-dt.create') }}',
-    columns: [
+    'ajax': '{{ route('calendar-dt.create') }}',
+    'columns': [
       { data: 'title', name: 'title' },
       { data: 'postcode', name: 'postcode' },
       { data: 'customer_id', name: 'customer_id' },
@@ -213,7 +215,6 @@ $(document).ready(function() {
       { data: 'action', name: 'action', orderable: false, searchable: false }
     ],
   });
-});
 </script>
 {{-- jquery datatables js --}}
 @endpush

@@ -4,7 +4,7 @@
 
 @push('css')
 {{-- jquery datatables css --}}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 {{-- jquery datatables css --}}
 @endpush
 
@@ -79,31 +79,29 @@
 
 @push('js')
 {{-- jquery datatables js --}}
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 <script>
-$(document).ready(function() {
-  $('#datatable').DataTable({
-    processing: true,
-    serverSide: true,
-    order: [[ 0, "desc" ]],
-    pageLength: 100,
-    columnDefs: [
-      {"targets": 5, "className": "text-nowrap"},
-      {"targets": 6, "className": "text-center text-nowrap"},
-    ],
-    ajax: '{{ route('jobs-dt.create') }}',
-    columns: [
-      { data: 'id', name: 'id' },
-      { data: 'customer_id', name: 'customer_id' },
-      { data: 'suburb', name: 'suburb' },
-      { data: 'postcode', name: 'postcode' },
-      { data: 'job_status_id', name: 'job_status_id' },
-      { data: 'job_type_id', name: 'job_type_id' },
-      { data: 'action', name: 'action', orderable: false, searchable: false }
-    ],
-  });
-});
+    new DataTable('#datatable', {
+        "processing": true,
+        "serverSide": true,
+        "order": [[ 0, "desc" ]],
+        "pageLength": 100,
+        "columnDefs": [
+            {"targets": 5, "className": "text-nowrap"},
+            {"targets": 6, "className": "text-center text-nowrap"},
+        ],
+        ajax: '{{ route('jobs-dt.create') }}',
+        "columns": [
+            { "data": 'id', "name": 'id' },
+            { "data": 'customer_id', "name": 'customer_id' },
+            { "data": 'suburb', "name": 'suburb' },
+            { "data": 'postcode', "name": 'postcode' },
+            { "data": 'job_status_id', "name": 'job_status_id' },
+            { "data": 'job_type_id', "name": 'job_type_id' },
+            { "data": 'action', "name": 'action', orderable: false, searchable: false }
+        ],
+    });
 </script>
 {{-- jquery datatables js --}}
 @endpush

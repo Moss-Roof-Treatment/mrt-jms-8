@@ -4,7 +4,7 @@
 
 @push('css')
 {{-- jquery datatables css --}}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 {{-- jquery datatables css --}}
 @endpush
 
@@ -116,16 +116,9 @@
 @endsection
 
 @push('js')
-{{-- jquery datatables --}}
-
-{{-- datatables js --}}
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-{{-- datatables js --}}
-
-{{-- datatables bootstrap js --}}
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
-{{-- datatables bootstrap js --}}
-
+{{-- jquery datatables js --}}
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 {{-- new notes datatable configuration --}}
 <script>
 $(document).ready(function() {
@@ -144,7 +137,6 @@ $(document).ready(function() {
 });
 </script>
 {{-- new notes datatable configuration --}}
-
 {{-- pending notes datatable configuration --}}
 <script>
 $(document).ready(function() {
@@ -163,7 +155,6 @@ $(document).ready(function() {
 });
 </script>
 {{-- pending notes datatable configuration --}}
-
 {{-- acknowledged notes datatable configuration --}}
 <script>
 $(document).ready(function() {
@@ -182,6 +173,5 @@ $(document).ready(function() {
 });
 </script>
 {{-- acknowledged notes datatable configuration --}}
-
-{{-- jquery datatables --}}
+{{-- jquery datatables js --}}
 @endpush
