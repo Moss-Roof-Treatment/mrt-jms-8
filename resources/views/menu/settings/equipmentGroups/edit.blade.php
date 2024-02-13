@@ -27,7 +27,7 @@
 
         <p class="text-primary my-3"><b>Edit Equipment Group</b></p>
 
-        <form action="{{ route('equipment-group-settings.update', $selected_equipment_group->id) }}" method="POST">
+        <form action="{{ route('equipment-group-settings.update', $selected_equipment_group->id) }}" method="POST" enctype="multipart/form-data">
           @method('PATCH')
           @csrf
 
@@ -53,6 +53,21 @@
                 </span>
               @enderror
             </div> {{-- col-md-9 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="image" class="col-md-2 col-form-label text-md-right">Image</label>
+            <div class="col-md-9">
+              <div class="custom-file">
+                <label class="custom-file-label" for="image" id="image_name">Please select an image to upload</label>
+                <input type="file" class="custom-file-input" name="image" id="image" aria-describedby="image">
+              </div> {{-- custom-file --}}
+              @error('image')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
           <div class="form-group row mb-0">
@@ -106,3 +121,16 @@
   </div> {{-- container --}}
 </section> {{-- section --}}
 @endsection
+
+@push('js')
+<script>
+  // Display the filename of the selected file to the user in the view from the upload form.
+  var image = document.getElementById("image");
+  image.onchange = function(){
+    if (image.files.length > 0)
+    {
+      document.getElementById('image_name').innerHTML = image.files[0].name;
+    }
+  };
+</script>
+@endpush

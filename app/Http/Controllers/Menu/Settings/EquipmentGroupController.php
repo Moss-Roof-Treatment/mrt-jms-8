@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Menu\Settings;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EquipmentGroup;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class EquipmentGroupController extends Controller
 {
@@ -56,13 +59,32 @@ class EquipmentGroupController extends Controller
         $request->validate([
             'title' => 'required|string|min:3|max:80',
             'description' => 'required|string|min:10|max:1000',
+            'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
         // Create the new model instance.
         $new_equipment_group = EquipmentGroup::create([
             'title' => ucwords($request->title),
             'description' => ucwords($request->description)
         ]);
-
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/equipment/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $new_equipment_group->update([
+                'image_path' => 'storage/images/equipment/' . $filename
+            ]);
+        }
         // Return a redirect to the show route.
         return redirect()
             ->route('equipment-group-settings.show', $new_equipment_group->id)
@@ -112,6 +134,7 @@ class EquipmentGroupController extends Controller
         $request->validate([
             'title' => 'required|string|min:3|max:80',
             'description' => 'required|string|min:10|max:1000',
+            'image' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
         // Find the required model instance.
         $selected_equipment_group = EquipmentGroup::findOrFail($id);
@@ -120,6 +143,30 @@ class EquipmentGroupController extends Controller
             'title' => ucwords($request->title),
             'description' => ucwords($request->description)
         ]);
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($selected_equipment_group->image_path != null && file_exists(public_path($selected_equipment_group->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($selected_equipment_group->image_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/equipment/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->resize(256, 256)->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $selected_equipment_group->update([
+                'image_path' => 'storage/images/equipment/' . $filename
+            ]);
+        }
         // Return a redirect to the show route.
         return redirect()
             ->route('equipment-group-settings.show', $selected_equipment_group->id)

@@ -57,7 +57,7 @@
               <tr>
                 <td class="text-center">
                   <a href="{{ route('equipment-items.show', $equipment->id) }}">
-                    <img class="img-fluid shadow-sm" style="max-width:64px;" src="{{ asset($equipment->get_equipment_image()) }}" alt="">
+                    <img style="max-width:64px;" src="{{ asset($equipment->get_equipment_image()) }}" alt="">
                   </a>
                 </td>
                 <td>{{ $equipment->title }}</td>

@@ -345,7 +345,7 @@
           <tbody>
             @foreach ($equipment_inspections as $inspection)
               <tr>
-                <td>{{ date('d/m/y', strtotime($inspection->created_at)) }}</td>
+                <td>{{ date('d/m/y', strtotime($inspection->inspection_date)) }}</td>
                 <td>{{ $inspection->inspection_company }}</td>
                 <td>{{ $inspection->inspector_name }}</td>
                 <td>{{ $inspection->tag_and_test_id }}</td>

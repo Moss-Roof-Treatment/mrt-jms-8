@@ -47,14 +47,9 @@ class EquipmentGroup extends Model
      */
     public function get_image() 
     {
-        // Check if the file exists on the server.
-        if ($this->image_path != null && file_exists(public_path($this->image_path))) {
-            $value = $this->image_path;
-        } else {
-            $value = "storage/images/placeholders/tools-256x256.jpg";
-        }
-        // Return the value.
-        return $value;
+        return $this->image_path != null
+        ? $this->image_path
+        : "storage/images/placeholders/tools-256x256.jpg";
     }
 
     /*

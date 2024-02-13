@@ -1,6 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.jquery')
 
 @section('title', '- Equipment Groups - View Selected Equipment Group')
+
+@push('css')
+{{-- jquery datatables css --}}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
+{{-- jquery datatables css --}}
+@endpush
 
 @section('content')
 <section>
@@ -62,7 +68,7 @@
       </div>
       <div class="col-sm-5">
         <h5 class="text-primary my-4"><b>Equipment Group Image</b></h5>
-        <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}">
+        <img class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($selected_equipment_group->get_image()) }}">
       </div>
     </div>
     {{-- equipment group details table --}}
@@ -77,7 +83,7 @@
       </div> {{-- card --}}
     @else
       <div class="table-responsive">
-        <table class="table table-bordered table-fullwidth table-striped bg-white">
+        <table id="datatable" class="table table-bordered table-fullwidth table-striped bg-white" style="width:100%">
           <thead class="table-secondary">
             <tr>
               <th>Image</th>
@@ -93,13 +99,13 @@
               <tr>
                 <td>
                   <a href="{{ route('equipment-items.show', $equipment->id) }}">
-                    <img style="max-width: 50px;" class="img-fluid shadow-sm mx-auto d-block" src="{{ asset('storage/images/placeholders/tools-256x256.jpg') }}">
+                    <img style="max-width: 50px;" class="img-fluid shadow-sm mx-auto d-block" src="{{ asset($equipment->get_equipment_image()) }}">
                   </a>
                 </td>
                 <td>{{ $equipment->title }}</td>
                 <td>{{ $equipment->equipment_category->title }}</td>
                 <td>{{ $equipment->owner->getFullNameAttribute() }}</td>
-                <td></td>
+                <td>{!! $equipment->get_latest_inspection() !!}</td>
                 <td class="text-center">
                   <a class="btn btn-primary btn-sm" href="{{ route('equipment-items.show', $equipment->id) }}">
                     <i class="fas fa-eye mr-2" aria-hidden="true"></i>View
@@ -150,3 +156,27 @@
   </div> {{-- container --}}
 </section> {{-- section --}}
 @endsection
+
+@push('js')
+{{-- jquery datatables js --}}
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+<script>
+    new DataTable('#datatable', {
+        "processing": true,
+        "info": true, {{-- Show the page info --}}
+        "lengthChange": true, {{-- Show results length --}}
+        "ordering": true, {{-- Allow ordering of all columns --}}
+        "paging": false, {{-- Show pagination --}}
+        "processing": true, {{-- Show processing message on long load time --}}
+        "searching": true, {{-- Search for results --}}
+        "order": [[ 1, "asc" ]],
+        "columnDefs": [
+            {"targets": 0, "orderable": false},
+            {"targets": 3, "orderable": false},
+            {"targets": 5, "orderable": false, "className": "text-nowrap"},
+        ],
+    });
+</script>
+{{-- jquery datatables js --}}
+@endpush

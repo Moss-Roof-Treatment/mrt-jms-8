@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Storage;
 
 class Equipment extends Model
 {
@@ -97,13 +98,18 @@ class Equipment extends Model
      */
     public function get_equipment_image() 
     {
-        // Check if the file exists on the server.
-        if ($this->image_path != null && file_exists(public_path($this->image_path))) {
-            $value = $this->image_path;
-        } else {
-            $value = "storage/images/placeholders/tools-256x256.jpg";
-        }
-        // Return the value.
-        return $value;
+        return $this->image_path != null
+        ? $this->image_path
+        : "storage/images/placeholders/tools-256x256.jpg";
+    }
+
+    /**
+     * Get equipment latest inspection.
+     */
+    public function get_latest_inspection() 
+    {
+        return $this->equipment_inspections->count() >= 1
+        ? date('d/m/Y', strtotime($this->equipment_inspections->last()->inspection_date))
+        : '<span class="badge badge-light py-2 px-2"><i class="fas fa-times mr-2" aria-hidden="true"></i>Not Applicable</span>';
     }
 }
