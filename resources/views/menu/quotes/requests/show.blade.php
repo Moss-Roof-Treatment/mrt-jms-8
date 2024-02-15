@@ -8,7 +8,7 @@
 
     {{-- title --}}
     <h3 class="text-secondary mb-0">QUOTE</h3>
-    <h5>View Selected Quote Requests</h5>
+    <h5>View Selected Quote Request</h5>
     {{-- title --}}
 
     {{-- navigation --}}
@@ -574,13 +574,11 @@
                         </button>
                       </div>
                       <div class="modal-body pt-0 pl-0 pr-0 pb-0 mt-0">
-                        <a href="{{ route('job-images.show', $image->id) }}">
-                          @if ($image->image_path == null)
-                            <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/home-256x256.jpg') }}" alt="home-256x256">
-                          @else
-                            <img class="img-fluid" src="{{ asset($image->image_path) }}" alt="job_image">
-                          @endif
-                        </a>
+                        @if ($image->image_path == null)
+                          <img class="img-fluid shadow-sm" src="{{ asset('storage/images/placeholders/home-256x256.jpg') }}" alt="home-256x256">
+                        @else
+                          <img class="img-fluid" src="{{ asset($image->image_path) }}" alt="job_image">
+                        @endif
                       </div> {{-- modal-body --}}
                     </div> {{-- modal-content --}}
                   </div> {{-- modal-dialog --}}
