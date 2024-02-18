@@ -80,7 +80,7 @@ class GroupEmailController extends Controller
         // Validate The Request Data.
         $request->validate([
             'subject' => 'sometimes|nullable|string|min:5|max:100',
-            'text' => 'sometimes|nullable|string|min:5|max:500',
+            'text' => 'sometimes|nullable|string|min:5|max:2500',
             'email_template' => 'required|integer',
             'recipient_group' => 'required|integer',
         ]);

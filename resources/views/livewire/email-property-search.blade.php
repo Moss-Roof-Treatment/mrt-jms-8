@@ -185,7 +185,7 @@
                 <div class="form-group row">
                     <label for="title" class="col-md-3 col-form-label text-md-right">Title</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control @error('title') is-invalid @enderror mb-2" wire:model="title" placeholder="Please enter the title">
+                        <input type="text" class="form-control @error('title') is-invalid @enderror mb-2" wire:model="title" placeholder="Please enter the title" id="title">
                         @error('title')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -197,7 +197,7 @@
                 <div class="form-group row">
                     <label for="description" class="col-md-3 col-form-label text-md-right">Description</label>
                     <div class="col-md-8">
-                        <textarea class="form-control @error('description') is-invalid @enderror mb-2" type="text" wire:model="description" rows="5" placeholder="Please enter the description" style="resize:none">{{ old('description') }}</textarea>
+                        <textarea class="form-control @error('description') is-invalid @enderror mb-2" type="text" wire:model="description" rows="5" placeholder="Please enter the description" style="resize:none" id="description">{{ old('description') }}</textarea>
                         @error('description')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

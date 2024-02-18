@@ -58,7 +58,7 @@ class EmailController extends Controller
             'recipient_email' => 'required|email',
             'recipient_name' => 'sometimes|nullable|string|min:3|max:50',
             'subject' => 'required|string|min:10|max:255',
-            'message' => 'required|string|min:15|max:1000',
+            'message' => 'required|string|min:15|max:2500',
             'comment' => 'sometimes|nullable|string|min:15|max:500'
         ]);
 
