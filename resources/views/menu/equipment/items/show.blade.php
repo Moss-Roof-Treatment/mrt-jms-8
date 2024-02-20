@@ -19,6 +19,11 @@
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
+        <a href="{{ route('equipment-group-settings.show', $equipment->equipment_group_id) }}" class="btn btn-primary btn-block">
+          <i class="fas fa-eye mr-2" aria-hidden="true"></i>View Equipment Group
+        </a>
+      </div> {{-- col pb-3 --}}
+      <div class="col pb-3">
         <a href="{{ route('equipment-items.edit', $equipment->id) }}" class="btn btn-primary btn-block">
           <i class="fas fa-edit mr-2" aria-hidden="true"></i>Edit
         </a>

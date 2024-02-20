@@ -25,7 +25,7 @@
         </a>
       </div> {{-- col pb-3 --}}
       <div class="col pb-3">
-        <a href="{{ route('equipment-items.create') }}" class="btn btn-dark btn-block">
+        <a href="{{ route('equipment-items.create') }}" class="btn btn-primary btn-block">
           <i class="fas fa-plus mr-2" aria-hidden="true"></i>Create New Equipment
         </a>
       </div> {{-- col pb-3 --}}
