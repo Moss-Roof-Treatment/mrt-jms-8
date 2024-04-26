@@ -33,7 +33,7 @@ class AcceptCardPaymentController extends Controller
     public function index()
     {
         // Check if the GET data has been supplied.
-        if(!isset($_GET['selected_quote'])) {
+        if (!isset($_GET['selected_quote'])) {
             return back()
                 ->with('danger', 'The job information is required to process a payment.');
         }
@@ -65,11 +65,11 @@ class AcceptCardPaymentController extends Controller
         // Formatted deposit total.
         $formatted_total_sale = $semi_formatted_total_sale / 100; // divided by 100 to turn cents into dollars.
         // Calculate 1.75% stripe surchage.
-        $fee_percent = 0.0175; // 1.75%.
+        $fee_percent = 0.0170; // 1.70% - Stripe changed this to 1.70% from 1.75% in april.
         // Set $0.30 fixed fee.
         $fee_fixed = 0.30; // 30 cents.
         // Calculate the surcharge total using stripes pass fees onto customer equation. 
-        $surcharge = ( $formatted_total_sale / ( 1 - $fee_percent )) + ( 1 + ( $fee_percent * $fee_percent ) + $fee_percent ) * $fee_fixed - $formatted_total_sale;
+        $surcharge = ($formatted_total_sale / (1 - $fee_percent)) + (1 + ($fee_percent * $fee_percent) + $fee_percent) * $fee_fixed - $formatted_total_sale;
         // Set the charge amount to send to stripe.
         $charge_amount = number_format(($formatted_total_sale + $surcharge), 2, '.', ',');
 
@@ -130,7 +130,7 @@ class AcceptCardPaymentController extends Controller
                 ->route('profile-jobs.show', $selected_quote->id)
                 ->with('success', 'The payment has been accepted successfully, The selected job is now paid in full.');
 
-        // Catch any errors that may occour.
+            // Catch any errors that may occour.
         } catch (CardErrorException $e) {
 
             // Return a redirect back and display the errors that have occoured.
