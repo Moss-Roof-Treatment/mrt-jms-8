@@ -919,7 +919,7 @@
                                                 <i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>Not Applicable
                                             </span>
                                         @else
-                                            {{ substr(quote->description, 0, 50) }}{{ strlen(quote->description) > 50 ? '...' : '' }}
+                                            {{ substr($quote->description, 0, 50) }}{{ strlen($quote->description) > 50 ? '...' : '' }}
                                         @endif
                                     </td>
                                     <td class="text-center text-nowrap">
