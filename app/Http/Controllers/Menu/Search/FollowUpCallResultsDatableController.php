@@ -31,14 +31,14 @@ class FollowUpCallResultsDatableController extends Controller
         // Get the required model instances.
         $quotes = Quote::where('quote_status_id', session('filtered_quote_status_id'))
             ->select('id', 'customer_id', 'job_id', 'quote_status_id', 'quote_identifier', 'job_type_id')
-            ->with(['customer' => fn ($q) => $q->select('id', 'first_name', 'last_name', 'email')])
+            ->with(['customer' => fn($q) => $q->select('id', 'first_name', 'last_name', 'email')])
             ->with('customer.user_logins')
-            ->with(['job' => fn ($q) => $q->select('id', 'tenant_street_address', 'tenant_suburb', 'tenant_postcode', 'quote_sent_status_id', 'follow_up_call_status_id')])
-            ->with(['job_type' => fn ($q) => $q->select('id','title')])
-            ->with(['quote_status' => fn ($q) => $q->select('id','title')])
-            ->with(['job.follow_up_call_status' => fn ($q) => $q->select('id','title', 'colour_id')])
+            ->with(['job' => fn($q) => $q->select('id', 'tenant_street_address', 'tenant_suburb', 'tenant_postcode', 'quote_sent_status_id', 'follow_up_call_status_id')])
+            ->with(['quote_status' => fn($q) => $q->select('id', 'title')])
+            ->with(['job.follow_up_call_status' => fn($q) => $q->select('id', 'title', 'colour_id')])
             ->with('job.follow_up_call_status.colour')
-            ->with(['customer.referral' => fn ($q) => $q->select('id','title')])
+            ->with(['customer.referral' => fn($q) => $q->select('id', 'title')])
+            ->with(['job.salesperson' => fn($q) => $q->select('id', 'first_name', 'last_name')])
             ->get();
         // Generate the Datatable.
         return Datatables::of($quotes)
@@ -97,14 +97,8 @@ class FollowUpCallResultsDatableController extends Controller
             })
             // Job type.
             ->editColumn('job_type_id', function ($quote) {
-                // Check if the job type status exists.
-                if ($quote->job_type_id == null) {
-                    // Return the not applicable badge.
-                    return '<span class="badge badge-light py-2 px-2"><i class="fas fa-times mr-2" aria-hidden="true"></i>Not Applicable</span>';
-                } else {
-                    // Return the quote job type title.
-                    return $quote->job_type->title;
-                }
+                // Return the salesperson name.
+                return $quote->job->salesperson->getFullNameAttribute() ?? 'Not Applicable';
             })
             // Roof outline image.
             ->addColumn('image', function ($quote) {
