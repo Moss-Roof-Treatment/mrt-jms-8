@@ -33,7 +33,7 @@ class LeadContactController extends Controller
         $request->validate([
             'call_back' => 'sometimes|nullable|string',
             'call_back_date_null' => 'sometimes|nullable|required_without:call_back',
-            'comment' => 'required|string|min:10|max:1000'
+            'comment' => 'required|string|min:10|max:5000'
         ]);
         // Create the new model instance.
         $new_lead_contact = LeadContact::create([
