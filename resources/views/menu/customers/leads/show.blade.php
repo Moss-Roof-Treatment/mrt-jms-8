@@ -60,6 +60,39 @@
         {{-- modal --}}
         {{-- confirm modal --}}
       </div> {{-- col pb-3 --}}
+      <div class="col pb-3">
+        {{-- confirm modal --}}
+        {{-- modal button --}}
+        <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#confirmDeleteModal">
+          <i class="fas fa-trash-alt mr-2" aria-hidden="true"></i>Delete
+        </button>
+        {{-- modal button --}}
+        {{-- modal --}}
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalTitle">Confirm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p class="text-center">Are you sure that you would like to delete this lead?</p>
+                <form action="{{ route('leads.destroy', $lead->id) }}" method="POST">
+                    @method('DELETE')
+                    @csrf
+                  <button type="submit" class="btn btn-danger btn-block">
+                    <i class="fas fa-trash-alt mr-2" aria-hidden="true"></i>Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{-- modal --}}
+        {{-- confirm modal --}}
+      </div> {{-- col pb-3 --}}
     </div> {{-- row row-cols-1 row-cols-sm-6 pt-3 --}}
     {{-- navigation --}}
 

@@ -170,7 +170,7 @@ class LeadController extends Controller
         // Validate The Request Data.
         $request->validate([
             'account_class_id' => 'sometimes|nullable',
-            'email' => 'sometimes|nullable|unique:leads,email,'.$id,
+            'email' => 'sometimes|nullable|unique:leads,email,' . $id,
             'first_name' => 'sometimes|nullable|string|min:3|max:50',
             'last_name' => 'sometimes|nullable|string|min:3|max:50',
             'street_address' => 'required|string|min:8|max:100',
@@ -222,7 +222,7 @@ class LeadController extends Controller
         // Find the required model instance.
         $lead = Lead::findOrFail($id);
         // Delete the selected model instance relationships.
-        $lead->lead_contacts->delete();
+        $lead->lead_contacts()->delete();
         // Delete the selected model instance.
         $lead->delete();
         // Return redirect to the index route.
