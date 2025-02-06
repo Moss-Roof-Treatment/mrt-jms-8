@@ -70,7 +70,7 @@ Route::resource('/profile/profile-job-invoice', App\Http\Controllers\Profile\Job
 // Group Invoices from the view of a tradesperson
 Route::resource('/profile/profile-group-invoice', App\Http\Controllers\Profile\Invoice\GroupInvoiceController::class);
 // Group Invoices from the view of a tradesperson
-Route::get('/profile/profile-group-invoice-dt',[App\Http\Controllers\Profile\Invoice\GroupInvoiceDatatableController::class, 'create'])->name('profile-group-invoice-dt.create');
+Route::get('/profile/profile-group-invoice-dt', [App\Http\Controllers\Profile\Invoice\GroupInvoiceDatatableController::class, 'create'])->name('profile-group-invoice-dt.create');
 // Tradespersons
 Route::resource('/profile/profile-job-rates', App\Http\Controllers\Profile\Job\ViewRateController::class);
 // Tradespersons
@@ -605,7 +605,7 @@ Route::resource('/equipment/equipment-notes', App\Http\Controllers\Menu\Equipmen
 // Equipment Menu Resource Route
 Route::resource('/equipment-items', App\Http\Controllers\Menu\Equipment\EquipmentController::class);
 // Equipment Menu Resource Route
-Route::view('/equipment', 'menu.equipment.index')->name('equipment.index')->middleware('auth','isStaff');
+Route::view('/equipment', 'menu.equipment.index')->name('equipment.index')->middleware('auth', 'isStaff');
 
 /*
 |--------------------------------------------------------------------------
@@ -742,7 +742,7 @@ Route::resource('/content/article-image-dropzone', App\Http\Controllers\Menu\Con
 Route::resource('/content/article-images', App\Http\Controllers\Menu\Content\ArticleImageController::class);
 Route::resource('/content/articles', App\Http\Controllers\Menu\Content\ArticleController::class);
 // Content Menu Index Route
-Route::view('/content', 'menu.content.index')->name('content.index')->middleware('auth','isStaff');
+Route::view('/content', 'menu.content.index')->name('content.index')->middleware('auth', 'isStaff');
 
 /*
 |--------------------------------------------------------------------------
@@ -879,6 +879,9 @@ Route::resource('/settings/rounding-calculator', App\Http\Controllers\Menu\Setti
 
 // Rounding calculator app Route
 Route::resource('/settings/expected-payment-settings', App\Http\Controllers\Menu\Settings\ExpectedPaymentMethodController::class)->only('index');
+
+// Customer Leads
+Route::resource('/settings/customer-lead-statuses', App\Http\Controllers\Menu\Settings\LeadStatusController::class);
 
 // Settings
 Route::resource('/settings', App\Http\Controllers\Menu\Settings\SettingsController::class)->only('index');

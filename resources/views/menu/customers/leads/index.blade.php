@@ -48,7 +48,6 @@
               <th>Account Class</th>
               <th>Business Name</th>
               <th>Postcode</th>
-              <th>Creation Date</th>
               <th>Last Contact Date</th>
               <th>Call Back Date</th>
               <th>Options</th>
@@ -93,7 +92,6 @@
                     {{ $lead->postcode }}
                   @endif
                 </td>
-                <td>{{ date('d/m/y', strtotime($lead->created_at)) }}</td>
                 <td>
                   @if ($lead->lead_contacts->last() == null)
                     <span class="badge badge-light py-2 px-2">
@@ -150,7 +148,7 @@
       "searching": true, {{-- Search for results --}}
       order: [[ 0, "asc" ]],
       columnDefs: [
-        {targets: 7, orderable: false, className: "text-center text-nowrap"},
+        {targets: 6, orderable: false, className: "text-center text-nowrap"},
       ],
     });
   });
