@@ -190,6 +190,11 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link text-dark" href="{{ route('customer-lead-statuses.index') }}">
+                  <i class="fas fa-user-shield mr-2" aria-hidden="true"></i>Customer Leads Statuses
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link text-dark" href="{{ route('dimensions-settings.index') }}">
                   <i class="fas fa-pencil-ruler mr-2" aria-hidden="true"></i>Dimensions
                 </a>
