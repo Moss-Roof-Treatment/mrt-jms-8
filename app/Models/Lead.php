@@ -26,6 +26,7 @@ class Lead extends Model
         'staff_id',
         'salesperson_id',
         'referral_id',
+        'lead_status_id',
         'email',
         'first_name',
         'last_name',
@@ -106,5 +107,13 @@ class Lead extends Model
     public function state()
     {
         return $this->belongsTo('App\Models\State');
+    }
+
+    /**
+     * Get the state associated with the lead.
+     */
+    public function lead_status()
+    {
+        return $this->belongsTo('App\Models\LeadStatus');
     }
 }

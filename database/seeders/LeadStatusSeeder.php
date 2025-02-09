@@ -15,6 +15,12 @@ class LeadStatusSeeder extends Seeder
     public function run()
     {
         LeadStatus::create([
+            'colour_id' => 6,
+            'title' => 'new',
+            'description' => ''
+        ]);
+
+        LeadStatus::create([
             'colour_id' => 2,
             'title' => 'Online Quote',
             'description' => ''

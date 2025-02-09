@@ -50,6 +50,7 @@
               <th>Postcode</th>
               <th>Last Contact Date</th>
               <th>Call Back Date</th>
+              <th>Status</th>
               <th>Options</th>
             </tr>
           </thead>
@@ -116,6 +117,9 @@
                     @endif
                   @endif
                 </td>
+                <td>
+                    {{ $lead->lead_status->title }}
+                </td>
                 <td class="text-center">
                   <a href="{{ route('leads.show', $lead->id) }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-eye mr-2" aria-hidden="true"></i>View
@@ -148,7 +152,7 @@
       "searching": true, {{-- Search for results --}}
       order: [[ 0, "asc" ]],
       columnDefs: [
-        {targets: 6, orderable: false, className: "text-center text-nowrap"},
+        {targets: 7, orderable: false, className: "text-center text-nowrap"},
       ],
     });
   });

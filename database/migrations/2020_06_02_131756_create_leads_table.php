@@ -46,6 +46,10 @@ class CreateLeadsTable extends Migration
                 ->default(5) // Default - Individual.
                 ->constrained('account_classes');
 
+            $table->foreignId('lead_status_id')
+                ->default(1) // Default - New.
+                ->constrained('lead_statuses');
+
             // Fields.
             $table->string('email')->nullable(); // User Email.
             $table->string('first_name')->nullable(); // User First Name.
