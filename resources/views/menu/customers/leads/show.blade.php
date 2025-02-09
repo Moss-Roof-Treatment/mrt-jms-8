@@ -351,7 +351,7 @@
             <label for="lead_status_id" class="col-md-3 col-form-label text-md-right">Lead Status</label>
             <div class="col-md-8">
               <select name="lead_status_id" id="lead_status_id" class="custom-select @error('lead_status_id') is-invalid @enderror mb-2">
-                <option disabled>Please select a referrer</option>
+                <option disabled>Please select a lead status</option>
                 @foreach ($all_lead_statuses as $lead_status)
                     <option value="{{ $lead_status->id }}" @if (old('lead_status_id', $lead->lead_status->id) == $lead_status->id) selected @endif>{{ $lead_status->title }}</option>
                 @endforeach
