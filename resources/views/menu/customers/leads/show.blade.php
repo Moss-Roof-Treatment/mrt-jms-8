@@ -321,17 +321,17 @@
             <label for="referral" class="col-md-3 col-form-label text-md-right">Referral</label>
             <div class="col-md-8">
               <select name="referral" id="referral" class="custom-select @error('referral') is-invalid @enderror mb-2">
-                @if (old('state'))
+                @if (old('referral'))
                   <option disabled>Please select a referrer</option>
                   @foreach ($all_referrals as $referral)
                     <option value="{{ $referral->id }}" @if (old('referral') == $referral->id) selected @endif>{{ $referral->title }}</option>
                   @endforeach
                 @else
                   @if ($lead->referral_id == null)
-                    <option selected disabled>Please select a state</option>
+                    <option selected disabled>Please select a referral</option>
                   @else
                     <option selected value="{{ $lead->referral_id }}">{{ $lead->referral->title }}</option>
-                    <option disabled>Please select a state</option>
+                    <option disabled>Please select a referral</option>
                     <option value=""></option>
                   @endif
                   @foreach ($all_referrals as $referral)
@@ -340,6 +340,23 @@
                 @endif
               </select>
               @error('referral')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-6 --}}
+          </div> {{-- form-group row --}}
+
+          <div class="form-group row">
+            <label for="lead_status_id" class="col-md-3 col-form-label text-md-right">Lead Status</label>
+            <div class="col-md-8">
+              <select name="lead_status_id" id="lead_status_id" class="custom-select @error('lead_status_id') is-invalid @enderror mb-2">
+                <option disabled>Please select a referrer</option>
+                @foreach ($all_lead_statuses as $lead_status)
+                    <option value="{{ $lead_status->id }}" @if (old('lead_status_id', $lead->lead_status->id) == $lead_status->id) selected @endif>{{ $lead_status->title }}</option>
+                @endforeach
+              </select>
+              @error('lead_status_id')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
                 </span>

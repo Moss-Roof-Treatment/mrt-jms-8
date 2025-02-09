@@ -118,6 +118,7 @@
                   @endif
                 </td>
                 <td>
+                    <i class="fas fa-square-full mr-2 border border-dark" style="color:{{ $lead->lead_status->colour->colour }};"></i>
                     {{ $lead->lead_status->title }}
                 </td>
                 <td class="text-center">

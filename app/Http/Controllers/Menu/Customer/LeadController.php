@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AccountClass;
 use App\Models\Lead;
 use App\Models\LeadContact;
+use App\Models\LeadStatus;
 use App\Models\Referral;
 use App\Models\State;
 use Auth;
@@ -145,6 +146,8 @@ class LeadController extends Controller
         $all_referrals = Referral::withCount('users')
             ->orderBy('users_count', 'desc')
             ->get();
+        // Find all referrals.
+        $all_lead_statuses = LeadStatus::all();
         // Find all states.
         $all_states = State::all('id', 'title');
         // Return the show view.
@@ -153,6 +156,7 @@ class LeadController extends Controller
                 'lead' => $lead,
                 'lead_contacts' => $lead_contacts,
                 'all_referrals' => $all_referrals,
+                'all_lead_statuses' => $all_lead_statuses,
                 'all_states' => $all_states,
                 'all_account_classes' => $all_account_classes
             ]);
@@ -178,6 +182,7 @@ class LeadController extends Controller
             'postcode' => 'required|numeric|min:1000|max:9999',
             'state' => 'required|string',
             'referral' => 'required|string',
+            'lead_status_id' => 'required',
             'home_phone' => 'sometimes|nullable|regex:/^[\s\d]+$/|required_without:mobile_phone',
             'mobile_phone' => 'sometimes|nullable|regex:/^[\s\d]+$/|required_without:home_phone',
             'business_name' => 'nullable|string',
@@ -197,6 +202,7 @@ class LeadController extends Controller
             'suburb' => ucwords($request->suburb),
             'state_id' => $request->state,
             'referral_id' => $request->referral,
+            'lead_status_id' => $request->lead_status_id,
             'postcode' => $request->postcode,
             'home_phone' => str_replace(' ', '', $request->home_phone),
             'mobile_phone' => str_replace(' ', '', $request->mobile_phone),
