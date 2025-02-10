@@ -46,22 +46,16 @@
             <label for="colour" class="col-md-2 col-form-label text-md-right">Colour</label>
             <div class="col-md-9">
               <select name="colour" id="colour" class="custom-select @error('colour') is-invalid @enderror mb-2">
-                @if (old('colour'))
                   <option disabled>Please select a colour</option>
                   @foreach ($all_colours as $colour)
-                    <option value="{{ $colour->id }}" @if (old('colour') == $colour->id) selected @endif>{{ $colour->title }}</option>
+                    <option
+                        value="{{ $colour->id }}"
+                        @if (old('colour', $selected_lead_status->colour_id) == $colour->id) selected @endif
+                        @if ($selected_lead_status->colour_id == $colour->id) hidden @endif
+                    >
+                        {{ $colour->title }}
+                    </option>
                   @endforeach
-                @else
-                  @if ($selected_lead_status->colour_id == null)
-                    <option selected disabled>Please select a colour</option>
-                  @else
-                    <option selected value="{{ $selected_lead_status->colour_id }}">{{ $selected_lead_status->colour->title }}</option>
-                    <option disabled>Please select a colour</option>
-                  @endif
-                  @foreach ($all_colours as $colour)
-                    <option @if ($selected_lead_status->colour_id == $colour->id) hidden @endif value="{{ $colour->id }}">{{ $colour->title }}</option>
-                  @endforeach
-                @endif
               </select>
               @error('colour')
                 <span class="invalid-feedback" role="alert">

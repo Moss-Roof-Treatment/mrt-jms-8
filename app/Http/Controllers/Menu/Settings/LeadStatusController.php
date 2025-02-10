@@ -89,7 +89,7 @@ class LeadStatusController extends Controller
         $selected_lead_status = LeadStatus::findOrFail($id);
         // Set The Required Variables.
         // Get the required colours.
-        $all_colours = Colour::whereIn('id', [2, 3, 4])
+        $all_colours = Colour::whereIn('id', [2, 3, 4, 7])
             ->get();
         // Return the edit view.
         return view('menu.settings.leadStatuses.edit')
