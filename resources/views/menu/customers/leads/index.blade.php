@@ -151,6 +151,7 @@
       "paging": true, {{-- Show pagination --}}
       "processing": true, {{-- Show processing message on long load time --}}
       "searching": true, {{-- Search for results --}}
+      "pageLength": 100,
       order: [[ 0, "asc" ]],
       columnDefs: [
         {targets: 7, orderable: false, className: "text-center text-nowrap"},
