@@ -199,7 +199,7 @@ class TaskController extends Controller
         if ($request->task_type_id == 1) {
             // The selected task type is 1. - Areas to be treated.
             $request->validate([
-                'title' => 'required|string|min:5|max:100|unique:tasks,title,'. $id,
+                'title' => 'required|string|min:5|max:100|unique:tasks,title,' . $id,
                 'building_style_id' => 'required',
                 'building_type_id' => 'required',
                 'material_type_id' => 'required',
@@ -212,7 +212,7 @@ class TaskController extends Controller
         } else {
             // The selected task type is not 1. - additions - other works.
             $request->validate([
-                'title' => 'required|string|min:5|max:100|unique:tasks,title,'. $id,
+                'title' => 'required|string|min:5|max:100|unique:tasks,title,' . $id,
                 'task_type_id' => 'required',
                 'dimension_id' => 'required',
                 'procedure' => 'required|string|min:10|max:600',
@@ -252,8 +252,8 @@ class TaskController extends Controller
             'dimension_id' => $request->dimension_id,
             'material_type_id' => $request->material_type_id,
             'title' => $request->title,
-            'procedure' => $request->procedure, 
-            'description' => $request->description, 
+            'procedure' => $request->procedure,
+            'description' => $request->description,
             'price' => intval(preg_replace('/[$.,]/', '', $request->price)), // Strip all dollar signs, commas and periods, then set to integer.
             'is_quote_visible' => $request->is_quote_visible,
             'is_selectable' => $request->is_selectable,

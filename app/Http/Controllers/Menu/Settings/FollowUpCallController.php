@@ -28,7 +28,7 @@ class FollowUpCallController extends Controller
     public function index()
     {
         // Find all of the required model instances.
-        $all_follow_up_call_statuses = FollowUpCallStatus::all();
+        $all_follow_up_call_statuses = FollowUpCallStatus::orderBy('colour_id')->get();
         // Return the index view.
         return view('menu.settings.followUpCallStatuses.index')
             ->with('all_follow_up_call_statuses', $all_follow_up_call_statuses);
@@ -43,7 +43,7 @@ class FollowUpCallController extends Controller
     {
         // Set The Required Variables.
         // Get the required colours.
-        $all_colours = Colour::whereIn('id', [2,3,4,7])
+        $all_colours = Colour::whereIn('id', [2, 3, 4, 7])
             ->get();
         // Return the create view.
         return view('menu.settings.followUpCallStatuses.create')
@@ -89,7 +89,7 @@ class FollowUpCallController extends Controller
         $selected_follow_up_call_status = FollowUpCallStatus::findOrFail($id);
         // Set The Required Variables.
         // Get the required colours.
-        $all_colours = Colour::whereIn('id', [2,3,4])
+        $all_colours = Colour::whereIn('id', [2, 3, 4, 7])
             ->get();
         // Return the edit view.
         return view('menu.settings.followUpCallStatuses.edit')
@@ -111,7 +111,7 @@ class FollowUpCallController extends Controller
         // Validate The Request Data.
         $request->validate([
             'colour' => 'required',
-            'title' => 'required|min:3|max:100|unique:follow_up_call_statuses,title,'.$id,
+            'title' => 'required|min:3|max:100|unique:follow_up_call_statuses,title,' . $id,
             'description' => 'sometimes|nullable|min:20|max:255',
         ]);
         // Find the required model instance.

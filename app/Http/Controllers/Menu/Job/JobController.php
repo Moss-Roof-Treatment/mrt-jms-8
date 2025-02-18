@@ -61,7 +61,7 @@ class JobController extends Controller
                 'all_job_statuses' => $all_job_statuses,
                 'all_jobs' => $all_jobs
             ]);
-        }
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -80,7 +80,7 @@ class JobController extends Controller
         $selected_customer = User::findOrFail($_GET['selected_customer_id']);
         // Staff Members
         $staff_members = User::where('id', '!=', 1)
-            ->whereIn('account_role_id', [1,2]) // Staff
+            ->whereIn('account_role_id', [1, 2]) // Staff
             ->where('login_status_id', 1) // 1 = Is Active.
             ->select('id', 'first_name', 'last_name')
             ->get();
@@ -215,7 +215,7 @@ class JobController extends Controller
         // Check for required action.
         // Check which submit button was pressed.
         switch ($request->action) {
-            // Continue button clicked.
+                // Continue button clicked.
             case 'continue':
                 // Create New Quote.
                 $new_quote = Quote::create([
@@ -242,7 +242,7 @@ class JobController extends Controller
                     'product_id' => 6, // The ID of the petrol product.
                     'quantity' => 10, // This is set to one because it is a total value not a single unit that needs to be multiplied.
                     'individual_price' => number_format(($selected_system->default_petrol_price / 100), 2, '.'), // This is a double for some reason ?????
-                    'total_price' => intval(number_format(floor($calculated_price*100)/100,2, '', '')), // Double value converted to int.
+                    'total_price' => intval(number_format(floor($calculated_price * 100) / 100, 2, '', '')), // Double value converted to int.
                     'price_per_litre' => $selected_system->default_petrol_price,
                     'usage_per_100_kms' => $default_litres_per_km,
                 ]);
@@ -294,8 +294,8 @@ class JobController extends Controller
                 return redirect()
                     ->route('quick-quote.show', $new_quote->id)
                     ->with('success', 'Success Continue');
-            break;
-            // Finished button clicked.
+                break;
+                // Finished button clicked.
             case 'finish':
                 // If an inspection is required create an inspection event, else set a quote request event. 
                 // Check if inspection date null is set.
@@ -336,8 +336,8 @@ class JobController extends Controller
                 return redirect()
                     ->route('jobs.show', $new_job->id)
                     ->with('success', 'Success Finish');
-            break;
-            // Default action.
+                break;
+                // Default action.
             default:
                 // Something wrong has happened.
                 // Return a 404.
@@ -387,6 +387,7 @@ class JobController extends Controller
         $job_progresses = JobProgress::all('id', 'title');
         // All follow up call statuses - for dropdown.
         $all_follow_up_call_statuses = FollowUpCallStatus::where('is_selectable', 1)
+            ->orderby('colour_id')
             ->with('colour')
             ->get();
         // All job statuses - for dropdown.
@@ -404,7 +405,7 @@ class JobController extends Controller
         $selected_sms_template = SmsTemplate::find(9); // Start Date Changed.
         // All sms templates.
         $all_sms_templates = SmsTemplate::select('id', 'title') // Select only id and title.
-            ->whereNotIn('id', [1,2]) // where not generic or testing sms.
+            ->whereNotIn('id', [1, 2]) // where not generic or testing sms.
             ->get();
         // Return the show view.
         return view('menu.jobs.show')
@@ -434,11 +435,11 @@ class JobController extends Controller
     public function edit($id)
     {
         // Find the required model instance.
-        $selected_job = Job::findOrFail($id);  
+        $selected_job = Job::findOrFail($id);
         // Set The Required Variables.
         // All Staff Members.
         $staff_members = User::where('id', '!=', 1)
-            ->whereIn('account_role_id', [1,2]) // Staff
+            ->whereIn('account_role_id', [1, 2]) // Staff
             ->select('id', 'first_name', 'last_name')
             ->get();
         // All Building Types.
@@ -533,7 +534,7 @@ class JobController extends Controller
         // Check if the quote request relationship exists.
         if ($selected_job->quote_request?->has('quote_request_images')) {
             // Loop through each quote request image.
-            foreach($selected_job->quote_request->quote_request_images as $quote_request_image) {
+            foreach ($selected_job->quote_request->quote_request_images as $quote_request_image) {
                 // Check if image path is not null.
                 if ($quote_request_image->image_path != null) {
                     // Check if file exists.
@@ -545,7 +546,7 @@ class JobController extends Controller
             }
         }
         // Loop through each job image.
-        foreach($selected_job->job_images as $job_image) {
+        foreach ($selected_job->job_images as $job_image) {
             // Check if image path is not null.
             if ($job_image->image_path != null) {
                 // Check if file exists.
