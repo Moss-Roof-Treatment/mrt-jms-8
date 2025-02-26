@@ -318,13 +318,13 @@
           </div> {{-- form-group row --}}
 
           <div class="form-group row">
-            <label for="referral" class="col-md-3 col-form-label text-md-right">Referral</label>
+            <label for="referral_id" class="col-md-3 col-form-label text-md-right">Referral</label>
             <div class="col-md-8">
-              <select name="referral" id="referral" class="custom-select @error('referral') is-invalid @enderror mb-2">
-                @if (old('referral'))
+              <select name="referral_id" id="referral_id" class="custom-select @error('referral_id') is-invalid @enderror mb-2">
+                @if (old('referral_id'))
                   <option disabled>Please select a referrer</option>
                   @foreach ($all_referrals as $referral)
-                    <option value="{{ $referral->id }}" @if (old('referral') == $referral->id) selected @endif>{{ $referral->title }}</option>
+                    <option value="{{ $referral->id }}" @if (old('referral_id') == $referral->id) selected @endif>{{ $referral->title }}</option>
                   @endforeach
                 @else
                   @if ($lead->referral_id == null)
@@ -339,7 +339,7 @@
                   @endforeach
                 @endif
               </select>
-              @error('referral')
+              @error('referral_id')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
                 </span>

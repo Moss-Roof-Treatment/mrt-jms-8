@@ -87,6 +87,7 @@ class LeadController extends Controller
             'suburb' => 'required|string|min:3|max:60',
             'postcode' => 'required|numeric|min:1000|max:9999',
             'state_id' => 'required',
+            'referral_id' => 'required',
             'home_phone' => 'sometimes|nullable|regex:/^[\s\d]+$/|required_without:mobile_phone',
             'mobile_phone' => 'sometimes|nullable|regex:/^[\s\d]+$/|required_without:home_phone',
             'business_name' => 'nullable|string',
@@ -99,7 +100,7 @@ class LeadController extends Controller
         $lead = Lead::create([
             'account_class_id' => $request->account_class_id ?? 5, // Default - Individual.
             'staff_id' => Auth::id(),
-            'referral_id' => $request->referral ?? 1,
+            'referral_id' => $request->referral_id ?? 1, // Default - Yellow Pages.
             'email' => $request->email,
             'first_name' => ucwords($request->first_name),
             'last_name' => ucwords($request->last_name),
@@ -181,7 +182,7 @@ class LeadController extends Controller
             'suburb' => 'required|string|min:3|max:60',
             'postcode' => 'required|numeric|min:1000|max:9999',
             'state' => 'required|string',
-            'referral' => 'required|string',
+            'referral_id' => 'required|string',
             'lead_status_id' => 'required',
             'home_phone' => 'sometimes|nullable|regex:/^[\s\d]+$/|required_without:mobile_phone',
             'mobile_phone' => 'sometimes|nullable|regex:/^[\s\d]+$/|required_without:home_phone',
@@ -201,7 +202,7 @@ class LeadController extends Controller
             'street_address' => ucwords($request->street_address),
             'suburb' => ucwords($request->suburb),
             'state_id' => $request->state,
-            'referral_id' => $request->referral,
+            'referral_id' => $request->referral_id,
             'lead_status_id' => $request->lead_status_id,
             'postcode' => $request->postcode,
             'home_phone' => str_replace(' ', '', $request->home_phone),
