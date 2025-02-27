@@ -47,7 +47,7 @@ class ConvertLeadToCustomerController extends Controller
         // Set the available characters string.
         $chars = "abcdefghmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         // Shuffle the characters string and trim the first 8 characters.
-        $random_string = substr(str_shuffle($chars),0,8);
+        $random_string = substr(str_shuffle($chars), 0, 8);
 
         // Create the new model instance.
         $new_user = User::create([
@@ -70,6 +70,14 @@ class ConvertLeadToCustomerController extends Controller
             'account_role_id' => 5, // Customer. 
             'password' => bcrypt($random_string) // Random string of characters.
         ]);
+
+        // Delete the selected model instance relationships.
+        $selected_lead->lead_contacts()->delete();
+        // Check if the file path value is not null and file exists on the server.
+        if ($selected_lead->image_path != null && file_exists(public_path($selected_lead->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($selected_lead->image_path));
+        }
 
         // Delete the new model instance.
         $selected_lead->delete();
