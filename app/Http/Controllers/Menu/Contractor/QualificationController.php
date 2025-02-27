@@ -47,9 +47,9 @@ class QualificationController extends Controller
             ->get();
         // Return the index view.
         return view('menu.contractors.qualifications.index', [
-                'selected_user' => $selected_user,
-                'selected_qualifications' => $selected_qualifications
-            ]);
+            'selected_user' => $selected_user,
+            'selected_qualifications' => $selected_qualifications
+        ]);
     }
 
     /**
@@ -115,7 +115,7 @@ class QualificationController extends Controller
             // Encoding jpeg data
             $image->toJpeg(80)->save($location);
             // Update the selected model instance.
-            $selected_user->update([
+            $new_qualification->update([
                 'image_path' => 'storage/images/qualifications/' . $filename
             ]);
         }

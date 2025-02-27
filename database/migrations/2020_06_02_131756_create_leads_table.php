@@ -51,18 +51,19 @@ class CreateLeadsTable extends Migration
                 ->constrained('lead_statuses');
 
             // Fields.
-            $table->string('email')->nullable(); // User Email.
-            $table->string('first_name')->nullable(); // User First Name.
-            $table->string('last_name')->nullable(); // User Last Name.
-            $table->string('street_address')->nullable(); // User Street Address.
-            $table->string('suburb')->nullable(); // User Suburb.
-            $table->string('postcode')->nullable(); // User Postcode.
-            $table->string('home_phone')->nullable(); // User Home Phone.
-            $table->string('mobile_phone')->nullable(); // User Mobile Phone.
-            $table->string('business_name')->nullable(); // The Company that the User owns.
-            $table->string('abn')->nullable(); // The Company that the User owns.
-            $table->string('business_phone')->nullable(); // User business Phone.
-            $table->text('description')->nullable(); // User business Phone.
+            $table->string('email')->nullable();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('street_address')->nullable();
+            $table->string('suburb')->nullable();
+            $table->string('postcode')->nullable();
+            $table->string('home_phone')->nullable();
+            $table->string('mobile_phone')->nullable();
+            $table->string('business_name')->nullable();
+            $table->string('abn')->nullable();
+            $table->string('business_phone')->nullable();
+            $table->text('description')->nullable();
+            $table->string('image_path')->nullable();
 
             // Options
             $table->boolean('do_not_contact')->default(0); // 0 - Contact / 1 - Do not contact.

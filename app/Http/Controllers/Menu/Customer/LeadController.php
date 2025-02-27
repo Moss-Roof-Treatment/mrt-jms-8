@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Menu\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\AccountClass;
 use App\Models\Lead;
 use App\Models\LeadContact;
@@ -11,6 +10,10 @@ use App\Models\LeadStatus;
 use App\Models\Referral;
 use App\Models\State;
 use Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class LeadController extends Controller
 {
@@ -94,6 +97,7 @@ class LeadController extends Controller
             'abn' => 'nullable|numeric',
             'business_phone' => 'nullable|numeric',
             'description' => 'nullable|string',
+            'image_path' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
 
         // Create the new model instance.
@@ -102,19 +106,39 @@ class LeadController extends Controller
             'staff_id' => Auth::id(),
             'referral_id' => $request->referral_id ?? 1, // Default - Yellow Pages.
             'email' => $request->email,
-            'first_name' => ucwords($request->first_name),
-            'last_name' => ucwords($request->last_name),
-            'street_address' => ucwords($request->street_address),
-            'suburb' => ucwords($request->suburb),
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'street_address' => $request->street_address,
+            'suburb' => $request->suburb,
             'state_id' => $request->state_id,
             'postcode' => $request->postcode,
             'home_phone' => str_replace(' ', '', $request->home_phone),
             'mobile_phone' => str_replace(' ', '', $request->mobile_phone),
-            'business_name' => ucwords($request->business_name),
+            'business_name' => $request->business_name,
             'business_phone' => $request->business_phone,
             'abn' => $request->abn,
-            'description' => ucfirst($request->description)
+            'description' => $request->description,
         ]);
+
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/leads/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $lead->update([
+                'image_path' => 'storage/images/leads/' . $filename
+            ]);
+        }
 
         // Return a redirect to the show route.
         return redirect()
@@ -190,6 +214,7 @@ class LeadController extends Controller
             'abn' => 'nullable|numeric',
             'business_phone' => 'nullable|numeric',
             'description' => 'nullable|string',
+            'image_path' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB
         ]);
         // Find the required model instance.
         $lead = Lead::findOrFail($id);
@@ -197,21 +222,47 @@ class LeadController extends Controller
         $lead->update([
             'account_class_id' => $request->account_class_id ?? 5, // Default - Individual.
             'email' => $request->email,
-            'first_name' => ucwords($request->first_name),
-            'last_name' => ucwords($request->last_name),
-            'street_address' => ucwords($request->street_address),
-            'suburb' => ucwords($request->suburb),
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'street_address' => $request->street_address,
+            'suburb' => $request->suburb,
             'state_id' => $request->state,
             'referral_id' => $request->referral_id,
             'lead_status_id' => $request->lead_status_id,
             'postcode' => $request->postcode,
             'home_phone' => str_replace(' ', '', $request->home_phone),
             'mobile_phone' => str_replace(' ', '', $request->mobile_phone),
-            'business_name' => ucwords($request->business_name),
+            'business_name' => $request->business_name,
             'business_phone' => $request->business_phone,
             'abn' => $request->abn,
-            'description' => ucfirst($request->description)
+            'description' => $request->description
         ]);
+
+        // Check the request data for the required file.
+        if ($request->hasFile('image')) {
+            // Check if the file path value is not null and file exists on the server.
+            if ($lead->image_path != null && file_exists(public_path($lead->image_path))) {
+                // Delete the file from the server.
+                unlink(public_path($lead->image_path));
+            }
+            // Set the uploaded file.
+            $image = $request->file('image');
+            // Set the new file name.
+            $filename = Str::orderedUuid() . '.' . $image->getClientOriginalExtension();
+            // Set the new file location.
+            $location = storage_path('app/public/images/leads/' . $filename);
+            // Create new manager instance with desired driver.
+            $manager = new ImageManager(new Driver());
+            // Read image from filesystem
+            $image = $manager->read($image);
+            // Encoding jpeg data
+            $image->toJpeg(80)->save($location);
+            // Update the selected model instance.
+            $lead->update([
+                'image_path' => 'storage/images/leads/' . $filename
+            ]);
+        }
+
         // Return the show view.
         return redirect()
             ->route('leads.show', $id)
@@ -230,6 +281,11 @@ class LeadController extends Controller
         $lead = Lead::findOrFail($id);
         // Delete the selected model instance relationships.
         $lead->lead_contacts()->delete();
+        // Check if the file path value is not null and file exists on the server.
+        if ($lead->image_path != null && file_exists(public_path($lead->image_path))) {
+            // Delete the file from the server.
+            unlink(public_path($lead->image_path));
+        }
         // Delete the selected model instance.
         $lead->delete();
         // Return redirect to the index route.

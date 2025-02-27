@@ -40,6 +40,7 @@ class Lead extends Model
         'abn',
         'business_phone',
         'description',
+        'image_path',
         'do_not_contact',
         'call_back_date',
     ];
