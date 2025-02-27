@@ -26,7 +26,7 @@
     <div class="row">
       <div class="col-sm-8">
 
-        <form action="{{ route('leads.store') }}" method="POST">
+        <form action="{{ route('leads.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
 
           <div class="form-group row">
@@ -217,6 +217,21 @@
             </div> {{-- col-md-8 --}}
           </div> {{-- form-group row --}}
 
+          <div class="form-group row">
+            <label for="image" class="col-md-3 col-form-label text-md-right">Image</label>
+            <div class="col-md-8">
+              <div class="custom-file">
+                <label class="custom-file-label" for="image" id="image_name">Please select an image to upload</label>
+                <input type="file" class="custom-file-input" name="image" id="image" aria-describedby="image">
+              </div> {{-- custom-file --}}
+              @error('image')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+              @enderror
+            </div> {{-- col-md-8 --}}
+          </div> {{-- form-group row --}}
+
           <div class="form-group row mb-0">
             <div class="col-md-8 offset-md-3">
               <button type="submit" class="btn btn-primary">
@@ -264,3 +279,16 @@
   </div> {{-- container --}}
 </section> {{-- section --}}
 @endsection
+
+@push('js')
+<script>
+  // Display the filename of the selected file to the user in the view from the upload form.
+  var image = document.getElementById("image");
+  image.onchange = function(){
+    if (image.files.length > 0)
+    {
+      document.getElementById('image_name').innerHTML = image.files[0].name;
+    }
+  };
+</script>
+@endpush

@@ -51,6 +51,7 @@
               <th>Last Contact Date</th>
               <th>Call Back Date</th>
               <th>Status</th>
+              <th>Image</th>
               <th>Options</th>
             </tr>
           </thead>
@@ -120,6 +121,9 @@
                 <td>
                     <i class="fas fa-square-full mr-2 border border-dark" style="color:{{ $lead->lead_status->colour->colour }};"></i>
                     {{ $lead->lead_status->title }}
+                </td>
+                <td>
+                    <img src="{{ @asset($lead->image_path) }}" style="max-width:150px;" onerror="this.onerror=null;this.src='{{ asset('storage/images/placeholders/home-256x256.jpg') }}';" alt="">
                 </td>
                 <td class="text-center">
                   <a href="{{ route('leads.show', $lead->id) }}" class="btn btn-primary btn-sm">
